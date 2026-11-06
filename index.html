@@ -133,6 +133,11 @@
   #s1.on .card{animation:cardIn .6s cubic-bezier(.2,1.25,.4,1) both}
   @keyframes cardIn{0%{transform:scale(.88) translateY(16px);opacity:0}
     100%{transform:none;opacity:1}}
+  .ics{display:flex;align-items:center;justify-content:center;gap:15px;margin:4px 0 8px}
+  .ics i{font-style:normal;font-size:27px;line-height:1;
+    animation:fl 3.2s ease-in-out infinite;animation-delay:var(--d,0s);
+    filter:drop-shadow(0 4px 12px rgba(245,185,66,.28))}
+  @keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
   .pw{display:flex;align-items:center;justify-content:center;gap:16px}
   .pw .sp{font-style:normal;color:#f5b942;font-size:14px;opacity:.4;
     animation:tw2 3.2s ease-in-out infinite}
@@ -234,11 +239,7 @@
   <div class="card" id="pcard">
     <div class="ico" id="pIco">🏆</div>
     <div class="badge" id="pBadge">特 等 奖</div>
-    <div class="pw">
-      <i class="sp">✦</i>
-      <div class="prize" id="pPrize">一句话</div>
-      <i class="sp">✦</i>
-    </div>
+    <div class="prize" id="pPrize"></div>
     <div class="row"><span>领取方式</span><b id="pR1">当面</b></div>
     <div class="row"><span>送达时间</span><b id="pR2">周五晚上</b></div>
     <div class="row"><span>有效期</span><b id="pR3">你说了算</b></div>
@@ -316,7 +317,7 @@ window.onerror = function(m){ window.__err = m; };
 
 var DEF = {
   t: "特 等 奖",
-  p: "一句话",
+  p: "",
   r1: "当面",
   r2: "周五晚上",
   r3: "你说了算"
@@ -343,8 +344,8 @@ function merge(o){
 })();
 
 // 旧文案迁移：早先那句占位的话不再使用
-if(cfg.p.indexOf("常熟") >= 0){
-  cfg.p = DEF.p;
+if(cfg.p.indexOf("常熟") >= 0 || cfg.p === "一句话"){
+  cfg.p = "";
   if(cfg.r1 === "抬头") cfg.r1 = DEF.r1;
   try{ localStorage.setItem("bdayCfg", JSON.stringify(cfg)); }catch(e){}
 }
@@ -352,10 +353,18 @@ if(cfg.p.indexOf("常熟") >= 0){
 function render(){
   document.getElementById("pBadge").textContent = cfg.t;
   var el = document.getElementById("pPrize");
-  el.textContent = cfg.p;
-  var ls = cfg.p.split("\n"), mx = 0;
-  ls.forEach(function(s){ if(s.length > mx) mx = s.length; });
-  el.style.fontSize = (ls.length >= 4 || mx > 12 ? 17 : ls.length === 3 || mx > 9 ? 19 : 22) + "px";
+  if(cfg.p){
+    el.className = "prize";
+    el.textContent = cfg.p;
+    var ls = cfg.p.split("\n"), mx = 0;
+    ls.forEach(function(s){ if(s.length > mx) mx = s.length; });
+    el.style.fontSize = (ls.length >= 4 || mx > 12 ? 17 : ls.length === 3 || mx > 9 ? 19 : 22) + "px";
+  }else{
+    el.className = "ics";
+    el.style.fontSize = "";
+    el.innerHTML = '<i style="--d:0s">💐</i><i style="--d:.35s">🎂</i>'
+      + '<i style="--d:.7s">🧧</i><i style="--d:1.05s">🤗</i>';
+  }
   document.getElementById("pR1").textContent = cfg.r1;
   document.getElementById("pR2").textContent = cfg.r2;
   document.getElementById("pR3").textContent = cfg.r3;
