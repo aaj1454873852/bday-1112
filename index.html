@@ -240,9 +240,6 @@
     <div class="ico" id="pIco">🏆</div>
     <div class="badge" id="pBadge">特 等 奖</div>
     <div class="prize" id="pPrize"></div>
-    <div class="row"><span>领取方式</span><b id="pR1">当面</b></div>
-    <div class="row"><span>送达时间</span><b id="pR2">周五晚上</b></div>
-    <div class="row"><span>有效期</span><b id="pR3">你说了算</b></div>
     <button id="claim">确认领取</button>
   </div>
 </div>
@@ -299,9 +296,6 @@
     <div class="ptip">改完点保存，直接递给她抽就行</div>
     <label>奖品名<input id="f0" maxlength="12"></label>
     <label>内容（可换行，最多 4 行）<textarea id="f1" maxlength="80"></textarea></label>
-    <label>领取方式<input id="f2" maxlength="16"></label>
-    <label>送达时间<input id="f3" maxlength="16"></label>
-    <label>有效期<input id="f4" maxlength="16"></label>
     <div class="btns">
       <button id="bsave">保存</button>
       <button id="breset">恢复默认</button>
@@ -358,16 +352,13 @@ function render(){
     el.textContent = cfg.p;
     var ls = cfg.p.split("\n"), mx = 0;
     ls.forEach(function(s){ if(s.length > mx) mx = s.length; });
-    el.style.fontSize = (ls.length >= 4 || mx > 12 ? 17 : ls.length === 3 || mx > 9 ? 19 : 22) + "px";
+    el.style.fontSize = (ls.length >= 4 || mx > 12 ? 22 : ls.length === 3 || mx > 9 ? 25 : 28) + "px";
   }else{
     el.className = "ics";
     el.style.fontSize = "";
     el.innerHTML = '<i style="--d:0s">💐</i><i style="--d:.35s">🎂</i>'
       + '<i style="--d:.7s">🧧</i><i style="--d:1.05s">🤗</i>';
   }
-  document.getElementById("pR1").textContent = cfg.r1;
-  document.getElementById("pR2").textContent = cfg.r2;
-  document.getElementById("pR3").textContent = cfg.r3;
 }
 render();
 
@@ -463,8 +454,8 @@ document.getElementById("done").addEventListener("click", function(){
 
 /* ---------- 编辑 ---------- */
 var panel = document.getElementById("panel");
-var F = ["f0","f1","f2","f3","f4"];
-var K = ["t","p","r1","r2","r3"];
+var F = ["f0","f1"];
+var K = ["t","p"];
 
 function fillForm(){
   F.forEach(function(id, i){ document.getElementById(id).value = cfg[K[i]]; });
