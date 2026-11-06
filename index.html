@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>物流详情</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:#06060e;color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  user-select:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0}
+.scr{position:fixed;inset:0;z-index:2;display:flex;flex-direction:column;
+  transition:opacity .85s ease}
+.gone{opacity:0;pointer-events:none}
+.cur{display:inline-block;width:2px;height:19px;background:#c9a7ff;vertical-align:-3px;animation:bk 1s steps(2) infinite}
+@keyframes bk{50%{opacity:0}}
+
+/* 开场 */
+#s0{align-items:center;justify-content:center;text-align:center;padding:40px 28px}
+.t{font-size:19px;line-height:2;letter-spacing:1.2px;color:#eae4ff;font-weight:300}
+
+/* 物流卡（仿真白底） */
+#s1{background:#f4f5f7;color:#1a1a1a}
+.bar{padding:calc(env(safe-area-inset-top) + 14px) 20px 14px;display:flex;align-items:center;
+  background:#fff;border-bottom:1px solid #eceef2;position:relative}
+.bar .back{font-size:22px;color:#333;line-height:1;width:24px}
+.bar .ttl{position:absolute;left:0;right:0;text-align:center;font-size:16px;font-weight:600;letter-spacing:.5px}
+.wrap{flex:1;overflow-y:auto;padding:14px 16px 120px;-webkit-overflow-scrolling:touch}
+
+.hero{background:#fff;border-radius:14px;padding:18px;margin-bottom:12px}
+.hero .st{display:flex;align-items:center;gap:8px;font-size:19px;font-weight:700;color:#1a1a1a}
+.dot{width:7px;height:7px;border-radius:50%;background:#2f7dff;animation:pl 1.4s infinite}
+@keyframes pl{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+.hero .sub{margin-top:8px;font-size:13px;color:#8a8f99;line-height:1.7}
+.hero .no{margin-top:14px;padding-top:14px;border-top:1px dashed #e8eaee;font-size:12px;color:#a2a7b0;
+  display:flex;justify-content:space-between}
+
+.card{background:#fff;border-radius:14px;padding:6px 18px 18px}
+.card h4{font-size:14px;color:#1a1a1a;font-weight:600;padding:14px 0 6px}
+.tl{position:relative;padding-left:26px;margin-top:8px}
+.tl::before{content:"";position:absolute;left:6px;top:10px;bottom:14px;width:1px;background:#e8eaee}
+.ev{position:relative;padding:12px 0;opacity:0;transform:translateY(8px);
+  transition:opacity .5s ease,transform .5s ease}
+.ev.in{opacity:1;transform:none}
+.ev::before{content:"";position:absolute;left:-24px;top:17px;width:9px;height:9px;border-radius:50%;
+  background:#d6dae1;box-shadow:0 0 0 3px #fff}
+.ev.hot::before{background:#ff4d4f;box-shadow:0 0 0 3px #fff,0 0 0 6px rgba(255,77,79,.16)}
+.ev .h{font-size:14px;color:#1a1a1a;display:flex;justify-content:space-between;align-items:baseline}
+.ev .h b{font-weight:600}
+.ev.hot .h b{color:#ff4d4f}
+.ev .h span{font-size:12px;color:#a2a7b0}
+.ev .d{font-size:12.5px;color:#8a8f99;margin-top:5px;line-height:1.6}
+.ev.hot .d{color:#ff4d4f}
+
+.foot{position:absolute;left:0;right:0;bottom:0;padding:14px 16px calc(env(safe-area-inset-bottom) + 16px);
+  background:linear-gradient(180deg,rgba(244,245,247,0),#f4f5f7 40%)}
+.ok{width:100%;padding:15px;border-radius:12px;border:0;font-size:16px;font-weight:600;
+  color:#fff;background:#2f7dff;font-family:inherit;transition:.2s}
+.ok:active{transform:scale(.98);background:#1f6ae8}
+.ok.wait{background:#c8ccd4}
+.note{text-align:center;font-size:11.5px;color:#a2a7b0;margin-top:10px;letter-spacing:.5px}
+
+/* 白闪 */
+#flash{position:fixed;inset:0;background:#fff;z-index:9;opacity:0;pointer-events:none}
+#flash.go{animation:fl2 .9s ease-out forwards}
+@keyframes fl2{0%{opacity:0}18%{opacity:1}100%{opacity:0}}
+
+/* 正文 */
+#s2,#s3{align-items:center;justify-content:center;text-align:center;padding:40px 30px}
+.line{opacity:0;transform:translateY(10px);transition:opacity 1.1s ease,transform 1.1s ease;
+  font-size:18px;line-height:2;color:#eae4ff;font-weight:300;letter-spacing:.8px}
+.line.in{opacity:1;transform:none}
+.line.big{font-size:27px;letter-spacing:4px;color:#fff;margin:10px 0}
+.line.soft{color:#9d93bd;font-size:15px}
+.line.gap{height:16px}
+#hb{font-size:34px;letter-spacing:6px;font-weight:300;
+  background:linear-gradient(92deg,#ffd6ec,#c9a7ff 40%,#8fd3ff 75%,#ffd6ec);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  background-size:220% 100%;animation:flow 5s linear infinite;margin-bottom:28px}
+@keyframes flow{to{background-position:220% 0}}
+.sign{margin-top:30px;font-size:13px;color:#8d84ab;letter-spacing:2px}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="flash"></div>
+
+<!-- 0 开场 -->
+<div class="scr" id="s0"><div class="t" id="type"></div></div>
+
+<!-- 1 物流详情 -->
+<div class="scr gone" id="s1">
+  <div class="bar"><div class="back">‹</div><div class="ttl">物流详情</div></div>
+  <div class="wrap">
+    <div class="hero">
+      <div class="st"><span class="dot"></span>派送中</div>
+      <div class="sub" id="heroSub">快递员正在为你派送，请保持手机畅通</div>
+      <div class="no"><span id="waybill">运单号 SF1111 2026 1111</span><span id="copy">复制</span></div>
+    </div>
+    <div class="card">
+      <h4>物流跟踪</h4>
+      <div class="tl" id="tl"></div>
+    </div>
+  </div>
+  <div class="foot">
+    <button class="ok wait" id="okBtn">确认收货</button>
+    <div class="note">确认后不可撤销</div>
+  </div>
+</div>
+
+<!-- 2 签收后 -->
+<div class="scr gone" id="s2"><div id="body2"></div></div>
+
+<!-- 3 结尾 -->
+<div class="scr gone" id="s3">
+  <div id="hb">生日快乐</div>
+  <div class="line soft" id="endLine"></div>
+  <div class="sign" id="sign"></div>
+  <div class="note" id="again" style="margin-top:42px;color:#6d6389">再看一次</div>
+</div>
+<script>
+/* ============ 文案：改这里 ============ */
+const S = {
+  intro: ["今天有件快递到。", "收件人：你。"],
+  events: [
+    { t: "昨天 23:40", s: "已打包", d: "打包人：一个不太会说话的人" },
+    { t: "今天 08:00", s: "已发出", d: "始发地：离你挺远的地方" },
+    { t: "今天 12:30", s: "运输中", d: "正在向你靠近" },
+    { t: "现在", s: "派送中", d: "派送员距你 0 米", hot: true }
+  ],
+  body: [
+    { x: "盒子是空的。" },
+    { x: "因为想送你的东西，装不进去。" },
+    { gap: 1 },
+    { x: "有句话我憋了挺久 ——" },
+    { x: "我喜欢你。", cls: "big" },
+    { gap: 1 },
+    { x: "这一趟，我亲自送。" },
+    { x: "不用现在回答，签收就好。" }
+  ],
+  end: "今天你最大，别的都不重要。",
+  sign: "—— 安俊"
+};
+
+const $ = id => document.getElementById(id);
+const show = id => $(id).classList.remove('gone');
+const hide = id => $(id).classList.add('gone');
+
+/* ============ 画布 ============ */
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let W, H, DPR = Math.min(devicePixelRatio || 1, 2);
+function resize(){ W = cv.width = innerWidth * DPR; H = cv.height = innerHeight * DPR;
+  cv.style.width = innerWidth + 'px'; cv.style.height = innerHeight + 'px'; }
+resize(); addEventListener('resize', resize);
+const stars = Array.from({length: 110}, () => ({ x: Math.random(), y: Math.random(),
+  r: Math.random() * 1.4 + .3, a: Math.random(), s: Math.random() * .012 + .004 }));
+let parts = [];
+function burst(x, y, n = 70, hue){
+  n = Math.min(n, 110);
+  for (let i = 0; i < n; i++){
+    const ang = Math.random() * Math.PI * 2, sp = (Math.random() * 5.5 + 1.6) * DPR;
+    parts.push({ x, y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, life: 1,
+      dec: Math.random() * .012 + .008,
+      hue: hue === undefined ? 250 + Math.random() * 90 : hue + Math.random() * 30,
+      r: Math.random() * 1.9 + .7 });
+  }
+}
+function loop(){
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = 'rgba(6,6,14,0.22)'; ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = 'lighter';
+  stars.forEach(s => { s.a += s.s; if (s.a > 1 || s.a < 0) s.s *= -1;
+    ctx.beginPath(); ctx.arc(s.x * W, s.y * H, s.r * DPR, 0, 7);
+    ctx.fillStyle = 'rgba(200,195,240,' + (s.a * .55) + ')'; ctx.fill(); });
+  for (let i = parts.length - 1; i >= 0; i--){
+    const p = parts[i];
+    p.x += p.vx; p.y += p.vy; p.vy += .045 * DPR; p.vx *= .985; p.vy *= .985; p.life -= p.dec;
+    if (p.life <= 0){ parts.splice(i, 1); continue; }
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r * DPR * p.life, 0, 7);
+    ctx.fillStyle = 'hsla(' + p.hue + ',95%,' + (58 + p.life * 22) + '%,' + p.life + ')'; ctx.fill();
+  }
+  requestAnimationFrame(loop);
+}
+loop();
+let spray = null;
+function startSpray(){ if (spray) return;
+  spray = setInterval(() => burst(Math.random() * W, Math.random() * H * .55, 60), 750); }
+</script>
+<script>
+/* ============ 流程 ============ */
+function typeInto(el, lines, speed, done){
+  let li = 0, ci = 0, dead = false;
+  el._skip = () => { if (dead) return; dead = true; el.innerHTML = lines.join('<br>'); done && done(); };
+  (function step(){
+    if (dead) return;
+    if (li >= lines.length){ done && done(); return; }
+    const shown = lines.slice(0, li).concat(lines[li].slice(0, ci)).join('<br>');
+    el.innerHTML = shown + '<span class="cur"></span>';
+    if (ci < lines[li].length){ ci++; setTimeout(step, speed); }
+    else { setTimeout(() => { li++; ci = 0; step(); }, 850); }
+  })();
+}
+
+/* 0 开场 → 1 物流 */
+typeInto($('type'), S.intro, 130, () => {
+  setTimeout(() => { hide('s0'); show('s1'); buildTL(); }, 1300);
+});
+$('s0').addEventListener('click', () => $('type')._skip && $('type')._skip());
+
+/* 物流时间轴 */
+let tlReady = false;
+function buildTL(){
+  if (tlReady) return; tlReady = true;
+  const tl = $('tl');
+  S.events.forEach((e, i) => {
+    const d = document.createElement('div');
+    d.className = 'ev' + (e.hot ? ' hot' : '');
+    d.innerHTML = '<div class="h"><b>' + e.s + '</b><span>' + e.t + '</span></div>' +
+                  '<div class="d">' + e.d + '</div>';
+    tl.appendChild(d);
+    setTimeout(() => d.classList.add('in'), 400 + i * 780);
+  });
+  setTimeout(() => {
+    $('okBtn').classList.remove('wait');
+    $('okBtn').textContent = '确认收货';
+    tlReady = true;
+  }, 400 + S.events.length * 780);
+}
+
+/* 确认收货 */
+$('okBtn').addEventListener('click', () => {
+  if ($('okBtn').classList.contains('wait')) return;
+  $('flash').classList.add('go');
+  burst(W * .5, H * .38, 100, 300);
+  setTimeout(() => {
+    hide('s1'); show('s2');
+    renderBody();
+  }, 420);
+});
+
+/* 正文逐行 */
+function renderBody(){
+  const box = $('body2');
+  box.innerHTML = '';
+  let i = 0;
+  (function step(){
+    if (i >= S.body.length){
+      setTimeout(() => {
+        hide('s2'); show('s3');
+        $('endLine').textContent = S.end;
+        $('endLine').classList.add('in');
+        $('sign').textContent = S.sign;
+        startSpray();
+        burst(W * .5, H * .30, 110, 320);
+      }, 1600);
+      return;
+    }
+    const it = S.body[i];
+    const d = document.createElement('div');
+    d.className = 'line' + (it.cls ? ' ' + it.cls : '') + (it.gap ? ' gap' : '');
+    d.textContent = it.gap ? '' : it.x;
+    box.appendChild(d);
+    requestAnimationFrame(() => d.classList.add('in'));
+    i++;
+    setTimeout(step, it.gap ? 280 : 1050);
+  })();
+}
+
+$('again').addEventListener('click', () => location.reload());
+</script>
+</body>
+</html>
