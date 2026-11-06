@@ -317,7 +317,7 @@ window.onerror = function(m){ window.__err = m; };
 
 var DEF = {
   t: "特 等 奖",
-  p: "",
+  p: "中间隔了好多年",
   r1: "当面",
   r2: "周五晚上",
   r3: "你说了算"
@@ -344,8 +344,8 @@ function merge(o){
 })();
 
 // 旧文案迁移：早先那句占位的话不再使用
-if(cfg.p.indexOf("常熟") >= 0 || cfg.p === "一句话"){
-  cfg.p = "";
+if(!cfg.p || cfg.p.indexOf("常熟") >= 0 || cfg.p === "一句话"){
+  cfg.p = DEF.p;
   if(cfg.r1 === "抬头") cfg.r1 = DEF.r1;
   try{ localStorage.setItem("bdayCfg", JSON.stringify(cfg)); }catch(e){}
 }
