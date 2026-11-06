@@ -3,158 +3,364 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>接上</title>
+<title>生日抽奖</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%;overflow:hidden;background:#08070d;color:#ece8f5;
+  html,body{height:100%;overflow:hidden;background:#0a0714;color:#f2eefb;
     font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
-    -webkit-user-select:none;user-select:none;touch-action:none}
+    -webkit-user-select:none;user-select:none;touch-action:manipulation}
 
-  .scr{position:fixed;inset:0;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;padding:0 8vw;
-    opacity:0;pointer-events:none;transition:opacity .7s ease}
+  .scr{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:22px;padding:32px 22px;opacity:0;pointer-events:none;
+    transition:opacity .5s ease}
   .scr.on{opacity:1;pointer-events:auto}
   .scr.gone{opacity:0;pointer-events:none}
 
-  /* ---- 第一屏：划线段 ---- */
-  .ends{width:84vw;display:flex;justify-content:space-between;
-    font-size:12px;letter-spacing:3px;color:#5f5878;margin-bottom:14px}
-  .ends .r{color:#8b82a8}
+  .kicker{font-size:13px;letter-spacing:6px;color:#8a80a8}
+  h1{font-size:24px;font-weight:600;letter-spacing:2px;text-align:center}
+  .sub{font-size:13px;color:#8a80a8;letter-spacing:1px;text-align:center;line-height:1.9}
 
-  .track{position:relative;width:84vw;height:56px;display:flex;align-items:center}
-  .base{position:absolute;left:0;right:0;height:1px;
-    background:repeating-linear-gradient(to right,#2a2440 0 5px,transparent 5px 11px)}
-  .fill{position:absolute;left:0;top:50%;transform:translateY(-50%);
-    height:2px;width:0;background:linear-gradient(90deg,#8a6b2e,#f5c563,#ffe9a8);
-    box-shadow:0 0 12px rgba(245,197,99,.55);border-radius:2px;
-    transition:width .06s linear}
-  .node{position:absolute;top:50%;width:9px;height:9px;border-radius:50%;
-    transform:translate(-50%,-50%);background:#3a3355;
-    transition:background .3s,box-shadow .3s}
-  .node.a{left:0;background:#f5c563;box-shadow:0 0 10px rgba(245,197,99,.6)}
-  .node.b{left:100%}
-  .node.b.on{background:#f5c563;box-shadow:0 0 16px rgba(245,197,99,.9)}
+  /* 转盘 */
+  .wheel{position:relative;width:min(78vw,320px);aspect-ratio:1/1;margin:6px 0}
+  .disc{position:absolute;inset:0;border-radius:50%;
+    background:conic-gradient(
+      #2b2440 0deg 60deg,
+      #3a3060 60deg 120deg,
+      #2b2440 120deg 180deg,
+      #3a3060 180deg 240deg,
+      #2b2440 240deg 300deg,
+      #f5b942 300deg 360deg);
+    box-shadow:0 0 0 8px #171128,0 0 0 9px #2f2648,0 18px 50px rgba(0,0,0,.6);
+    transition:transform 3.8s cubic-bezier(.16,.72,.16,1);
+    will-change:transform}
+  .lbl{position:absolute;left:50%;top:50%;width:0;height:0;font-size:12px;
+    color:#e8e2f7;letter-spacing:1px;white-space:nowrap}
+  .lbl span{position:absolute;transform:translate(-50%,-50%)}
+  .lbl.gold{color:#3a2a00;font-weight:700}
 
-  .hint{margin-top:34px;font-size:14px;color:#8b82a8;letter-spacing:2px;
-    text-align:center;line-height:1.9;animation:breathe 2.6s ease-in-out infinite}
-  @keyframes breathe{0%,100%{opacity:.45}50%{opacity:1}}
+  .pin{position:absolute;left:50%;top:-14px;transform:translateX(-50%);
+    width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;
+    border-top:22px solid #fff;filter:drop-shadow(0 3px 6px rgba(0,0,0,.6));z-index:3}
 
-  #fb{margin-top:26px;font-size:13px;color:#6f6889;letter-spacing:1px;
-    border-bottom:1px solid #2a2440;padding-bottom:3px;
-    opacity:0;transition:opacity .5s;pointer-events:none}
-  #fb.on{opacity:1;pointer-events:auto}
+  #go{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:26%;aspect-ratio:1/1;border-radius:50%;border:none;cursor:pointer;
+    background:radial-gradient(circle at 35% 30%,#fff,#d9d2ef);
+    color:#1a1230;font-size:15px;font-weight:700;letter-spacing:2px;
+    box-shadow:0 6px 18px rgba(0,0,0,.55),0 0 0 4px #0a0714;
+    transition:transform .12s}
+  #go:active{transform:translate(-50%,-50%) scale(.94)}
+  #go[disabled]{opacity:.5}
 
-  /* ---- 第二屏：文字 ---- */
-  #s1{gap:0}
-  .lw{display:flex;flex-direction:column;gap:20px;width:100%;max-width:340px}
-  .ln{opacity:0;transform:translateY(10px);
-    transition:opacity .9s ease,transform .9s ease;
-    font-size:17px;line-height:1.75;letter-spacing:1.5px;color:#cfc7e2}
-  .ln.on{opacity:1;transform:translateY(0)}
-  .ln.big{font-size:30px;font-weight:600;color:#fff;letter-spacing:4px;
-    margin-bottom:6px}
-  .ln.gap{height:8px}
-  .ln.dim{color:#8b82a8}
-  .ln.sig{font-size:14px;color:#6f6889;letter-spacing:2px;margin-top:14px}
+  .msg{font-size:15px;color:#c9c0e0;letter-spacing:1px;text-align:center;
+    min-height:24px;line-height:1.7}
+
+  /* 中奖卡 */
+  #s1{justify-content:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:24px 20px 36px}
+  #s1 .card{margin:auto 0}
+  .card{width:min(84vw,340px);border-radius:20px;padding:26px 22px;
+    background:linear-gradient(160deg,#221a3a,#151024);
+    border:1px solid #3a2f5c;box-shadow:0 24px 60px rgba(0,0,0,.7);
+    display:flex;flex-direction:column;gap:14px;align-items:center}
+  .badge{font-size:12px;letter-spacing:4px;color:#f5b942;text-align:center}
+  .prize{font-size:22px;font-weight:700;text-align:center;line-height:1.55;white-space:pre-wrap}
+  .row{width:100%;display:flex;justify-content:space-between;gap:14px;font-size:14px;
+    color:#a99fc4;padding:9px 0;border-bottom:1px dashed #2e2547}
+  .row b{color:#f2eefb;font-weight:500;text-align:right}
+  .row:last-of-type{border-bottom:none}
+  #claim{width:100%;margin-top:6px;padding:14px;border-radius:12px;border:none;
+    background:linear-gradient(90deg,#f5b942,#ffd97a);color:#2a1d00;
+    font-size:16px;font-weight:700;letter-spacing:2px;cursor:pointer}
+  #claim:active{opacity:.85}
+
+  /* 最后一页 */
+  .fin{display:flex;flex-direction:column;gap:16px;align-items:center;text-align:center}
+  .fin .l1{font-size:15px;color:#8a80a8;letter-spacing:2px}
+  .fin .l2{font-size:26px;font-weight:600;letter-spacing:3px}
+  .fin .l3{font-size:14px;color:#a99fc4;letter-spacing:1px}
+  .fin .sig{font-size:13px;color:#6f6688;letter-spacing:2px;margin-top:10px}
+
+  /* 编辑入口：右上角很淡的一笔 */
+  #ed{position:fixed;right:10px;top:10px;width:44px;height:44px;z-index:20;
+    display:flex;align-items:center;justify-content:center;
+    font-size:15px;color:#f2eefb;opacity:.13;cursor:pointer}
+
+  /* 编辑面板 */
+  #panel{position:fixed;inset:0;z-index:30;display:none;
+    background:rgba(6,4,12,.86);backdrop-filter:blur(6px);
+    align-items:center;justify-content:center;padding:20px}
+  #panel.on{display:flex}
+  .pbox{width:min(90vw,370px);max-height:88vh;overflow-y:auto;
+    background:linear-gradient(160deg,#1d1730,#120e20);
+    border:1px solid #3a2f5c;border-radius:18px;padding:20px 18px;
+    display:flex;flex-direction:column;gap:13px}
+  .pt{font-size:15px;font-weight:600;letter-spacing:2px;text-align:center;margin-bottom:2px}
+  .ptip{font-size:11px;color:#6f6688;text-align:center;line-height:1.7;margin-top:-6px}
+  .pbox label{display:block;font-size:12px;color:#8a80a8;letter-spacing:1px}
+  .pbox input,.pbox textarea{width:100%;margin-top:6px;background:#0f0b1a;
+    border:1px solid #352b52;border-radius:10px;padding:11px 12px;color:#f2eefb;
+    font-size:16px;font-family:inherit;line-height:1.5;outline:none;
+    -webkit-user-select:text;user-select:text}
+  .pbox textarea{resize:vertical;min-height:74px}
+  .pbox input:focus,.pbox textarea:focus{border-color:#6a5a9e}
+  .btns{display:flex;gap:10px;position:sticky;bottom:-1px;z-index:2;
+    background:linear-gradient(180deg,rgba(18,14,32,0),#120e20 45%);
+    padding:12px 0 2px;margin-top:0}
+  .btns button{flex:1;padding:12px 6px;border-radius:10px;border:1px solid #3a2f5c;
+    background:#1a1430;color:#cfc7e2;font-size:14px;font-family:inherit;cursor:pointer}
+  #bsave{background:linear-gradient(90deg,#f5b942,#ffd97a);color:#2a1d00;
+    border:none;font-weight:700}
+  #bsave:active,.btns button:active{opacity:.8}
+  #lnk{display:none;font-size:11px;color:#8a80a8;word-break:break-all;line-height:1.6;
+    background:#0f0b1a;border:1px solid #2a2242;border-radius:8px;padding:9px;
+    -webkit-user-select:text;user-select:text}
+  #lnk.on{display:block}
 </style>
 </head>
 <body>
 
+<!-- 开场 -->
 <div class="scr on" id="s0">
-  <div class="ends"><span>很久以前</span><span class="r">现在</span></div>
-  <div class="track" id="track">
-    <div class="base"></div>
-    <div class="fill" id="fill"></div>
-    <div class="node a"></div>
-    <div class="node b" id="nb"></div>
+  <div class="kicker">11 · 12</div>
+  <h1 id="ttl">陆玉纯的生日抽奖</h1>
+  <div class="sub">三次机会<br>点中间按钮</div>
+  <div class="wheel">
+    <div class="pin"></div>
+    <div class="disc" id="disc"></div>
+    <button id="go">抽奖</button>
   </div>
-  <div class="hint" id="hint">用手指<br>从左边划到右边</div>
-  <div id="fb">划不动就点这里</div>
+  <div class="msg" id="msg">点一下试试</div>
 </div>
 
+<!-- 中奖 -->
 <div class="scr" id="s1">
-  <div class="lw" id="lw"></div>
+  <div class="card">
+    <div class="badge" id="pBadge">特 等 奖</div>
+    <div class="prize" id="pPrize">一个从常熟<br>过来的人</div>
+    <div class="row"><span>领取方式</span><b id="pR1">抬头</b></div>
+    <div class="row"><span>送达时间</span><b id="pR2">周五晚上</b></div>
+    <div class="row"><span>有效期</span><b id="pR3">你说了算</b></div>
+    <button id="claim">确认领取</button>
+  </div>
+</div>
+
+<!-- 收尾 -->
+<div class="scr" id="s2">
+  <div class="fin">
+    <div class="l1">已领取</div>
+    <div class="l2">周五见</div>
+    <div class="l3">慈溪，三北大街</div>
+    <div class="sig">—— 安俊</div>
+  </div>
+</div>
+
+<!-- 编辑入口 -->
+<div id="ed">✎</div>
+
+<!-- 编辑面板 -->
+<div id="panel">
+  <div class="pbox">
+    <div class="pt">编辑特等奖</div>
+    <div class="ptip">改完点保存，直接递给她抽就行</div>
+    <label>奖品名<input id="f0" maxlength="12"></label>
+    <label>内容（可换行，最多 4 行）<textarea id="f1" maxlength="80"></textarea></label>
+    <label>领取方式<input id="f2" maxlength="16"></label>
+    <label>送达时间<input id="f3" maxlength="16"></label>
+    <label>有效期<input id="f4" maxlength="16"></label>
+    <div class="btns">
+      <button id="bsave">保存</button>
+      <button id="breset">恢复默认</button>
+      <button id="bclose">关闭</button>
+    </div>
+    <div id="lnk"></div>
+  </div>
 </div>
 
 <script>
 window.__err = "none";
 window.onerror = function(m){ window.__err = m; };
 
-var LINES = [
-  {t:"接上了。", c:"big"},
-  {t:"中间隔了很多年。"},
-  {t:"这次是 11 月 13 日。"},
-  {t:"接着往下走。"},
-  {t:"—— 安俊", c:"sig"}
-];
+var DEF = {
+  t: "特 等 奖",
+  p: "一个从常熟\n过来的人",
+  r1: "抬头",
+  r2: "周五晚上",
+  r3: "你说了算"
+};
+var cfg = { t:DEF.t, p:DEF.p, r1:DEF.r1, r2:DEF.r2, r3:DEF.r3 };
 
-var track = document.getElementById("track");
-var fill  = document.getElementById("fill");
-var nb    = document.getElementById("nb");
-var hint  = document.getElementById("hint");
-var fb    = document.getElementById("fb");
-var prog = 0, done = false;
-
-function setProg(p){
-  if(done) return;
-  p = Math.max(0, Math.min(1, p));
-  if(p <= prog) return;
-  prog = p;
-  fill.style.width = (prog * 100).toFixed(2) + "%";
-  if(prog >= 0.995) finish();
-}
-
-function fromX(x){
-  var r = track.getBoundingClientRect();
-  if(!r.width) return;
-  setProg((x - r.left) / r.width);
-}
-
-document.addEventListener("pointermove", function(e){ fromX(e.clientX); }, {passive:true});
-document.addEventListener("touchmove", function(e){
-  if(e.touches && e.touches[0]) fromX(e.touches[0].clientX);
-}, {passive:true});
-
-function finish(){
-  if(done) return;
-  done = true;
-  prog = 1;
-  fill.style.width = "100%";
-  nb.classList.add("on");
-  hint.style.opacity = "0";
-  fb.classList.remove("on");
-  setTimeout(function(){
-    document.getElementById("s0").classList.add("gone");
-    document.getElementById("s1").classList.add("on");
-    showLines();
-  }, 800);
-}
-
-function showLines(){
-  var lw = document.getElementById("lw");
-  var d = 250;
-  LINES.forEach(function(o){
-    var el = document.createElement("div");
-    el.className = "ln" + (o.c ? " " + o.c : "");
-    el.textContent = o.t;
-    lw.appendChild(el);
-    var t = d;
-    setTimeout(function(){ el.classList.add("on"); }, t);
-    d += (o.c === "big" ? 1500 : 950);
+function merge(o){
+  if(!o) return;
+  ["t","p","r1","r2","r3"].forEach(function(k){
+    if(typeof o[k] === "string" && o[k].length) cfg[k] = o[k];
   });
 }
 
-// 兜底：9 秒没动作，给点击入口
-var fbTimer = setTimeout(function(){ fb.classList.add("on"); }, 9000);
-fb.addEventListener("click", function(){
-  clearTimeout(fbTimer);
-  var t0 = Date.now();
-  var iv = setInterval(function(){
-    var p = Math.min(1, (Date.now() - t0) / 1100);
-    setProg(p);
-    if(p >= 1) clearInterval(iv);
-  }, 28);
+// 载入：优先链接里的配置，其次本机保存
+(function loadCfg(){
+  try{
+    var h = decodeURIComponent(location.hash.slice(1));
+    if(h){ merge(JSON.parse(h)); return; }
+  }catch(e){}
+  try{
+    var s = localStorage.getItem("bdayCfg");
+    if(s) merge(JSON.parse(s));
+  }catch(e){}
+})();
+
+function render(){
+  document.getElementById("pBadge").textContent = cfg.t;
+  var el = document.getElementById("pPrize");
+  el.textContent = cfg.p;
+  var ls = cfg.p.split("\n"), mx = 0;
+  ls.forEach(function(s){ if(s.length > mx) mx = s.length; });
+  el.style.fontSize = (ls.length >= 4 || mx > 12 ? 17 : ls.length === 3 || mx > 9 ? 19 : 22) + "px";
+  document.getElementById("pR1").textContent = cfg.r1;
+  document.getElementById("pR2").textContent = cfg.r2;
+  document.getElementById("pR3").textContent = cfg.r3;
+}
+render();
+
+/* ---------- 转盘 ---------- */
+var PRIZES = ["谢谢参与","再来一次","5 元红包","谢谢参与","免费拥抱","特等奖"];
+var GOLD = 5;
+var SEG = 360 / PRIZES.length;
+var disc = document.getElementById("disc");
+var go = document.getElementById("go");
+var msg = document.getElementById("msg");
+
+var _W = disc.offsetWidth || 300;
+var _R = _W * 0.31;
+PRIZES.forEach(function(name, i){
+  var ang = (i * SEG + SEG / 2) * Math.PI / 180;
+  var wrap = document.createElement("div");
+  wrap.className = "lbl" + (i === GOLD ? " gold" : "");
+  var sp = document.createElement("span");
+  sp.textContent = name;
+  sp.style.left = Math.round(Math.sin(ang) * _R) + "px";
+  sp.style.top  = Math.round(-Math.cos(ang) * _R) + "px";
+  wrap.appendChild(sp);
+  disc.appendChild(wrap);
 });
+
+var rot = 0, tries = 0, busy = false;
+var PLAN = [0, 1, GOLD];
+
+function angleFor(i){
+  var a = (-(i * SEG + SEG / 2)) % 360;
+  return (a + 360) % 360;
+}
+
+function spin(){
+  if(busy || tries >= 3) return;
+  busy = true; go.disabled = true; msg.textContent = "……";
+  var idx = PLAN[tries];
+  var r = angleFor(idx);
+  while(r < rot + 360 * 4) r += 360;
+  rot = r;
+  disc.style.transform = "rotate(" + rot + "deg)";
+  setTimeout(function(){
+    busy = false; tries++; go.disabled = false;
+    if(idx === GOLD){
+      msg.textContent = "！";
+      setTimeout(function(){
+        document.getElementById("s0").classList.add("gone");
+        document.getElementById("s1").classList.add("on");
+      }, 600);
+    }else{
+      msg.textContent = tries === 1 ? "手气一般，还有两次" : "就差一点，最后一次";
+    }
+  }, 3900);
+}
+go.addEventListener("click", spin);
+
+document.getElementById("claim").addEventListener("click", function(){
+  document.getElementById("s1").classList.add("gone");
+  setTimeout(function(){
+    document.getElementById("s2").classList.add("on");
+  }, 450);
+});
+
+/* ---------- 编辑 ---------- */
+var panel = document.getElementById("panel");
+var F = ["f0","f1","f2","f3","f4"];
+var K = ["t","p","r1","r2","r3"];
+
+function fillForm(){
+  F.forEach(function(id, i){ document.getElementById(id).value = cfg[K[i]]; });
+}
+
+function openPanel(){
+  fillForm();
+  panel.classList.add("on");
+  document.getElementById("lnk").classList.remove("on");
+}
+
+document.getElementById("ed").addEventListener("click", openPanel);
+
+// 连点标题 5 次也能进
+var taps = 0, tapT = null;
+document.getElementById("ttl").addEventListener("click", function(){
+  taps++;
+  clearTimeout(tapT);
+  tapT = setTimeout(function(){ taps = 0; }, 900);
+  if(taps >= 5){ taps = 0; openPanel(); }
+});
+
+document.getElementById("bclose").addEventListener("click", function(){
+  panel.classList.remove("on");
+});
+
+document.getElementById("breset").addEventListener("click", function(){
+  cfg = { t:DEF.t, p:DEF.p, r1:DEF.r1, r2:DEF.r2, r3:DEF.r3 };
+  fillForm();
+});
+
+document.getElementById("bsave").addEventListener("click", function(){
+  F.forEach(function(id, i){
+    var v = document.getElementById(id).value;
+    cfg[K[i]] = v.length ? v : DEF[K[i]];
+  });
+  try{ localStorage.setItem("bdayCfg", JSON.stringify(cfg)); }catch(e){}
+  render();
+  // 回到开场，可以立刻演示
+  document.getElementById("s2").classList.remove("on");
+  document.getElementById("s1").classList.remove("on");
+  document.getElementById("s0").classList.remove("gone");
+  disc.style.transform = "rotate(0deg)";
+  rot = 0; tries = 0; busy = false; go.disabled = false;
+  msg.textContent = "点一下试试";
+  makeLink();   // 显示可分享链接，面板不关，看完再点关闭
+});
+
+// 长按"保存"给出可分享的链接（换设备也不丢）
+var holdT = null;
+var bsave = document.getElementById("bsave");
+function makeLink(){
+  F.forEach(function(id, i){
+    var v = document.getElementById(id).value;
+    cfg[K[i]] = v.length ? v : DEF[K[i]];
+  });
+  var base = location.href.split("#")[0];
+  var url = base + "#" + encodeURIComponent(JSON.stringify(cfg));
+  var box = document.getElementById("lnk");
+  box.innerHTML = "";
+  var tip = document.createElement("div");
+  tip.textContent = "已保存 · 当面玩直接点关闭；想发给她就复制下面这行";
+  tip.style.color = "#8a80a8";
+  box.appendChild(tip);
+  var u = document.createElement("div");
+  u.textContent = url;
+  u.style.marginTop = "7px";
+  u.style.color = "#cfc7e2";
+  box.appendChild(u);
+  box.classList.add("on");
+  try{ if(navigator.clipboard) navigator.clipboard.writeText(url); }catch(e){}
+}
+bsave.addEventListener("touchstart", function(){ holdT = setTimeout(makeLink, 700); }, {passive:true});
+bsave.addEventListener("touchend", function(){ clearTimeout(holdT); }, {passive:true});
+bsave.addEventListener("mousedown", function(){ holdT = setTimeout(makeLink, 700); });
+bsave.addEventListener("mouseup", function(){ clearTimeout(holdT); });
 </script>
 </body>
 </html>
