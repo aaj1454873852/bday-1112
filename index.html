@@ -137,6 +137,86 @@
   @keyframes pop2{0%{transform:scale(0);opacity:0}
     70%{transform:scale(1.3)}100%{transform:scale(1);opacity:1}}
 
+  /* ---------- 四样各自的动效 ---------- */
+  .recv .it{position:relative}
+  .recv .it .fx{position:absolute;inset:0;pointer-events:none;z-index:3}
+  .recv .it .fx em{position:absolute;display:block;opacity:0}
+  /* 平时轻轻活着 */
+  #s2.on .recv .it i{animation:idle 3.6s ease-in-out infinite;
+    animation-delay:calc(var(--d,0s) + .5s)}
+  @keyframes idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
+  /* 点开后一道光晕 */
+  .recv .it.got::after{content:"";position:absolute;left:-8px;top:50%;
+    width:44px;height:44px;margin-top:-22px;border-radius:50%;pointer-events:none;
+    background:radial-gradient(circle,rgba(245,185,66,.32),transparent 68%);
+    animation:fxGlow .95s ease both}
+  @keyframes fxGlow{0%{opacity:0;transform:scale(.35)}
+    32%{opacity:1;transform:scale(1.1)}100%{opacity:0;transform:scale(1.6)}}
+  /* 蛋糕：蹦一下 + 轻轻晃 */
+  #s2 .recv .it.got[data-fx="cake"] i{animation:fxCake .95s ease both}
+  @keyframes fxCake{0%{transform:none}
+    16%{transform:scale(1.3) translateY(-4px)}
+    36%{transform:scale(.97) rotate(-7deg)}
+    56%{transform:scale(1.07) rotate(6deg)}
+    78%{transform:scale(.99) rotate(-2deg)}
+    100%{transform:none}}
+  /* 花：慢慢绽开 */
+  #s2 .recv .it.got[data-fx="flower"] i{animation:fxFlower 1.25s cubic-bezier(.2,1,.3,1) both}
+  @keyframes fxFlower{0%{transform:scale(.6) rotate(-16deg)}
+    55%{transform:scale(1.2) rotate(6deg)}
+    100%{transform:scale(1) rotate(0)}}
+  /* 红包：摇一摇 */
+  #s2 .recv .it.got[data-fx="packet"] i{animation:fxPacket .68s ease-in-out both}
+  @keyframes fxPacket{0%,100%{transform:none}
+    14%{transform:rotate(-14deg) translateX(-2px)}
+    30%{transform:rotate(12deg) translateX(2px)}
+    46%{transform:rotate(-10deg)}
+    62%{transform:rotate(8deg)}
+    78%{transform:rotate(-4deg)}}
+  /* 抱抱：一收一放 */
+  #s2 .recv .it.got[data-fx="hug"] i{animation:fxHug 1.15s ease-in-out both}
+  @keyframes fxHug{0%{transform:none}
+    20%{transform:scaleX(.76) scaleY(1.14)}
+    44%{transform:scaleX(1.16) scaleY(.92)}
+    66%{transform:scaleX(.94) scaleY(1.05)}
+    100%{transform:none}}
+  /* 粒子 */
+  .pt.spark{width:4px;height:4px;border-radius:50%;background:#ffd47a;
+    box-shadow:0 0 9px rgba(255,190,90,.95);animation:ptRise 1s ease-out both}
+  @keyframes ptRise{0%{opacity:0;transform:translateY(5px) scale(.5)}
+    22%{opacity:1}100%{opacity:0;transform:translateY(-27px) scale(1.1)}}
+  .pt.petal{width:7px;height:9px;border-radius:50% 50% 50% 0;background:#f7a8c4;
+    box-shadow:0 0 9px rgba(247,168,196,.55);
+    animation:ptPetal 1.3s cubic-bezier(.3,.7,.4,1) both}
+  @keyframes ptPetal{0%{opacity:0;transform:translate(0,7px) rotate(0) scale(.7)}
+    24%{opacity:1}
+    100%{opacity:0;transform:translate(var(--dx,12px),-25px) rotate(190deg) scale(1)}}
+  .pt.coin{width:9px;height:9px;border-radius:50%;
+    background:radial-gradient(circle at 34% 30%,#fff2c4,#f5b942 55%,#c8891b);
+    box-shadow:0 0 9px rgba(245,185,66,.6);
+    animation:ptCoin 1.1s cubic-bezier(.25,.8,.3,1) both}
+  @keyframes ptCoin{0%{opacity:0;transform:translate(0,3px) scale(.5)}
+    20%{opacity:1}
+    100%{opacity:0;transform:translate(var(--dx,10px),-27px) scale(1)}}
+  .pt.heart{width:8px;height:8px;background:#ff7d9c;border-radius:2px;
+    transform:rotate(45deg);box-shadow:0 0 10px rgba(255,125,156,.6);
+    animation:ptHeart 1.3s ease-out both}
+  .pt.heart::before,.pt.heart::after{content:"";position:absolute;
+    width:8px;height:8px;background:#ff7d9c;border-radius:50%}
+  .pt.heart::before{left:-4px;top:0}
+  .pt.heart::after{left:0;top:-4px}
+  @keyframes ptHeart{0%{opacity:0;transform:translate(0,5px) rotate(45deg) scale(.5)}
+    22%{opacity:1}
+    100%{opacity:0;transform:translate(var(--dx,8px),-26px) rotate(45deg) scale(1.15)}}
+  /* 点开后那句话弹出来 */
+  #s2 .recv .it.got b.pop{animation:pop2 .5s cubic-bezier(.2,1.6,.4,1) both}
+  /* 手机若开了"减少动态效果"，就都不动 */
+  @media (prefers-reduced-motion: reduce){
+    .recv .it .fx,.recv .it.got::after{display:none}
+    #s2.on .recv .it i,.recv .it.got i{animation:none !important}
+    #s2 .recv .it.got b.pop{animation:none !important}
+  }
+
   /* 收尾 */
   #s3 .fin > *{opacity:0;transform:translateY(10px)}
   #s3.on .fin > *{animation-name:up;animation-duration:.85s;
@@ -177,10 +257,10 @@
 <div class="scr" id="s2">
   <div class="recv">
     <div class="win"><i>🏆</i><b>特等奖</b></div>
-    <div class="it tap" data-say="切 给 你" style="--d:.15s"><i>🎂</i><span>一个蛋糕</span><b>点开</b></div>
-    <div class="it tap" data-say="给 你" style="--d:.35s"><i>💐</i><span>一束花</span><b>点开</b></div>
-    <div class="it tap" data-say="收 着" style="--d:.55s"><i>🧧</i><span>一个红包</span><b>点开</b></div>
-    <div class="it tap" data-say="抱 一 下" style="--d:.75s"><i>🤗</i><span>一个拥抱</span><b>点开</b></div>
+    <div class="it tap" data-fx="cake" data-say="切 给 你" style="--d:.15s"><i>🎂</i><span>一个蛋糕</span><b>点开</b><div class="fx"></div></div>
+    <div class="it tap" data-fx="flower" data-say="给 你" style="--d:.35s"><i>💐</i><span>一束花</span><b>点开</b><div class="fx"></div></div>
+    <div class="it tap" data-fx="packet" data-say="收 着" style="--d:.55s"><i>🧧</i><span>一个红包</span><b>点开</b><div class="fx"></div></div>
+    <div class="it tap" data-fx="hug" data-say="抱 一 下" style="--d:.75s"><i>🤗</i><span>一个拥抱</span><b>点开</b><div class="fx"></div></div>
     <div class="htip">四样都在我这儿，点开一样，我拿一样</div>
   </div>
   <div class="letter">
@@ -289,13 +369,42 @@ function spin(){
 }
 go.addEventListener("click", spin);
 
-// 现场兑奖：点开一样，我拿一样
+// 现场兑奖：点开一样，我拿一样（每样有自己的动效）
+var FX = {
+  cake:  {cls:"spark", n:8, d:[.85,1.15], lo:9,  hi:26},
+  flower:{cls:"petal", n:9, d:[1.15,1.55],lo:10, hi:28},
+  packet:{cls:"coin",  n:9, d:[.95,1.3],  lo:11, hi:28},
+  hug:   {cls:"heart", n:7, d:[1.15,1.5], lo:9,  hi:24}
+};
+function playFx(el){
+  var box = el.querySelector(".fx");
+  if(!box) return;
+  var cfg = FX[el.getAttribute("data-fx")] || FX.cake;
+  box.innerHTML = "";
+  for(var i = 0; i < cfg.n; i++){
+    var p = document.createElement("em");
+    p.className = "pt " + cfg.cls;
+    p.style.left = Math.round(3 + Math.random() * 21) + "px";
+    p.style.top  = Math.round(cfg.lo + Math.random() * (cfg.hi - cfg.lo)) + "px";
+    p.style.setProperty("--dx", Math.round((Math.random() * 2 - 1) * 22) + "px");
+    p.style.animationDelay = (Math.random() * .26).toFixed(2) + "s";
+    p.style.animationDuration = (cfg.d[0] + Math.random() * (cfg.d[1] - cfg.d[0])).toFixed(2) + "s";
+    box.appendChild(p);
+  }
+  setTimeout(function(){ box.innerHTML = ""; }, 2400);
+}
 Array.prototype.forEach.call(document.querySelectorAll("#s2 .it.tap"), function(el){
   el.addEventListener("click", function(){
     if(el.classList.contains("got")) return;
     el.classList.add("got");
     var b = el.querySelector("b");
-    if(b) b.textContent = el.getAttribute("data-say") || "\u2713";
+    if(b){
+      b.textContent = el.getAttribute("data-say") || "\u2713";
+      b.classList.remove("pop");
+      void b.offsetWidth;
+      b.classList.add("pop");
+    }
+    playFx(el);
   });
 });
 
