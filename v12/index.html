@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0e1828">
+<title>生日快乐</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#070c16}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  -webkit-user-select:none;user-select:none}
+
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity .85s ease,transform .85s ease;will-change:opacity,transform}
+.screen.hide{opacity:0;pointer-events:none;transform:scale(.97)}
+
+/* ========== 第零屏：雪夜 ========== */
+#s0{background:linear-gradient(180deg,#05080f 0%,#0a1220 26%,#142138 52%,#24344d 72%,#3d4d68 88%,#55647e 100%)}
+#snow{position:absolute;inset:0;z-index:2;pointer-events:none}
+
+#moon{position:absolute;top:13%;right:19%;width:54px;height:54px;border-radius:50%;z-index:1;
+  background:radial-gradient(circle at 38% 36%,#fdfbf4,#e6e9f2 62%,#cdd4e4 100%);
+  box-shadow:0 0 40px 12px rgba(220,232,255,.22),0 0 90px 40px rgba(180,205,245,.12);
+  opacity:.9}
+
+#trees{position:absolute;left:0;right:0;bottom:19%;height:150px;z-index:3}
+.tree{position:absolute;bottom:0;width:0;height:0;border-style:solid;
+  border-color:transparent transparent #070d18 transparent;
+  filter:drop-shadow(0 0 6px rgba(0,0,0,.5))}
+
+#ground{position:absolute;left:0;right:0;bottom:0;height:21%;z-index:4;
+  background:linear-gradient(180deg,#e9eef8 0%,#cfd9ea 26%,#a9b8d0 62%,#7d8ea9 100%);
+  border-radius:52% 52% 0 0 / 26px 26px 0 0;
+  box-shadow:0 -14px 40px rgba(180,205,245,.28)}
+
+#s0text{position:relative;z-index:6;text-align:center;margin-top:-16%;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(11px,3.2vw,13.5px);line-height:2.35;letter-spacing:.19em;
+  color:rgba(255,255,255,.66);text-shadow:0 2px 14px rgba(0,0,0,.6);
+  padding:0 30px;opacity:0;animation:fadeIn 2.2s ease .8s forwards}
+#s0text span{color:rgba(255,255,255,.92);letter-spacing:.24em}
+
+#s0hint{position:absolute;left:0;right:0;bottom:max(30px,env(safe-area-inset-bottom));text-align:center;z-index:7;
+  font-size:11.5px;letter-spacing:.34em;color:rgba(255,255,255,.42);
+  opacity:0;animation:fadeIn 1.6s ease 3.2s forwards,breathe2 2.8s ease-in-out 4.8s infinite}
+@keyframes breathe2{0%,100%{opacity:.32}50%{opacity:.62}}
+@keyframes fadeIn{to{opacity:1}}
+
+/* ========== 第一屏：心形卡片墙 ========== */
+#s1{background:radial-gradient(ellipse 78% 62% at 50% 44%,#fff8fb 0%,#ffe4ee 30%,#fbc6da 58%,#eb9dbe 82%,#d9809f 100%)}
+
+#bgtext{position:absolute;left:0;right:0;top:7.5%;text-align:center;
+  font-family:"STKaiti","KaiTi","Kaiti SC","SimSun",serif;
+  font-size:var(--bgsz,72px);font-weight:700;color:rgba(190,28,62,.62);
+  letter-spacing:.16em;text-indent:.16em;white-space:nowrap;pointer-events:none;
+  text-shadow:0 2px 18px rgba(255,255,255,.85);z-index:1;opacity:0}
+#bgtext.run{animation:fadeIn .9s ease .35s forwards}
+
+#wall{position:relative;width:1px;height:1px;z-index:2;animation:breath 7s ease-in-out infinite 1.6s}
+@keyframes breath{0%,100%{transform:scale(1)}50%{transform:scale(1.028)}}
+
+.card{position:absolute;left:50%;top:50%;width:var(--cw,32px);height:var(--ch,38px);
+  border-radius:5px;display:flex;align-items:center;justify-content:center;
+  font-size:var(--cf,9px);line-height:1.06;text-align:center;padding:2px;font-weight:600;
+  color:#6a5560;background:#fff;box-shadow:0 3px 9px rgba(158,52,96,.16),0 1px 2px rgba(158,52,96,.1);
+  opacity:0;transform:translate(-50%,-50%) scale(.15) rotate(var(--r,0deg));
+  animation:fly .78s cubic-bezier(.18,1.32,.36,1) forwards;
+  animation-delay:var(--d,0s);will-change:transform,opacity}
+@keyframes fly{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.15) rotate(var(--r,0deg))}
+  55%{opacity:1}
+  100%{opacity:1;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1) rotate(var(--r,0deg))}
+}
+.card.on{animation:none;opacity:1;
+  transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1) rotate(var(--r,0deg));
+  transition:transform .32s cubic-bezier(.2,1.4,.4,1),box-shadow .3s}
+.card.tap{transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.6) rotate(0deg) !important;
+  box-shadow:0 10px 26px rgba(158,52,96,.3);z-index:99}
+
+#hint{position:absolute;left:0;right:0;bottom:max(34px,env(safe-area-inset-bottom));text-align:center;z-index:5;
+  opacity:0;animation:fadeIn 1s ease 2s forwards}
+#hint span{display:inline-block;padding:11px 26px;border-radius:999px;
+  background:#fff;color:#b32c5c;font-weight:600;font-size:13.5px;letter-spacing:.08em;
+  box-shadow:0 8px 24px rgba(158,52,96,.26),0 2px 6px rgba(158,52,96,.16);
+  animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+
+/* ========== 第二屏：蛋糕 ========== */
+#s2{background:radial-gradient(ellipse 70% 55% at 50% 52%,#3a2130 0%,#26151f 45%,#150a11 100%)}
+#s2tip{position:absolute;top:11%;left:0;right:0;text-align:center;color:#e8b6c8;font-size:13px;
+  letter-spacing:.16em;opacity:0;animation:fadeIn 1s ease .8s forwards;z-index:3}
+#s2tip b{color:#ffd9e6;font-weight:600}
+
+#cakeWrap{position:relative;width:230px;height:250px;margin-top:10px;
+  filter:drop-shadow(0 24px 34px rgba(0,0,0,.55));
+  opacity:0;transform:translateY(26px) scale(.94);animation:cakeIn .95s cubic-bezier(.2,1.1,.35,1) .15s forwards}
+@keyframes cakeIn{to{opacity:1;transform:translateY(0) scale(1)}}
+
+.tier{position:absolute;left:50%;transform:translateX(-50%);border-radius:4px 4px 7px 7px;
+  background:linear-gradient(180deg,#fffdfe 0%,#fdf6f9 38%,#f0dbe3 100%);
+  box-shadow:inset 0 -10px 16px rgba(206,168,182,.22)}
+.tier::before{content:'';position:absolute;left:0;right:0;top:-8px;height:16px;border-radius:50%;
+  background:#fffdfe;box-shadow:inset 0 -3px 6px rgba(206,168,182,.3)}
+.t1{bottom:0;width:210px;height:56px;z-index:1}
+.t2{bottom:50px;width:178px;height:46px;z-index:2}
+.t3{bottom:92px;width:150px;height:40px;z-index:3}
+
+.tier::after{content:'';position:absolute;left:0;right:0;bottom:-9px;height:14px;z-index:9;
+  background-image:radial-gradient(circle at 50% 0,#fffdfe 7.5px,rgba(255,255,255,0) 8px);
+  background-size:19px 14px;background-repeat:repeat-x;
+  filter:drop-shadow(0 3px 2px rgba(200,160,178,.35))}
+
+#plate{position:absolute;left:50%;bottom:-13px;transform:translateX(-50%);
+  width:250px;height:26px;border-radius:50%;z-index:0;
+  background:linear-gradient(180deg,#f8e6ee 0%,#e7c6d4 55%,#c9a0b2 100%);
+  box-shadow:0 14px 30px rgba(0,0,0,.5),inset 0 -3px 8px rgba(150,90,115,.3)}
+
+.berry{position:absolute;width:12px;height:12px;border-radius:50%;z-index:4;
+  background:radial-gradient(circle at 34% 28%,#ff9db4,#d9264e 72%);
+  box-shadow:0 2px 4px rgba(110,0,30,.4),inset -1px -1px 3px rgba(120,0,25,.4)}
+.berry::after{content:'';position:absolute;left:50%;top:-4px;width:2px;height:5px;
+  background:#4e8a3f;border-radius:1px;transform:translateX(-50%) rotate(-12deg)}
+
+#cakeWrap::after{content:'';position:absolute;inset:-70px;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse 46% 40% at 50% 26%,rgba(255,176,96,.22),rgba(255,140,70,.07) 48%,transparent 70%)}
+
+#candleZone{position:absolute;left:50%;bottom:130px;transform:translateX(-50%);
+  width:52px;height:76px;cursor:pointer;z-index:6;display:flex;justify-content:center}
+#candle{position:absolute;bottom:0;width:10px;height:52px;border-radius:3px;
+  background:repeating-linear-gradient(45deg,#fff 0 5px,#ffe4ec 5px 10px);
+  box-shadow:inset -2px 0 3px rgba(0,0,0,.09),0 0 0 1px rgba(255,255,255,.5)}
+#wick{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);width:2px;height:6px;
+  background:#4a3038;border-radius:1px}
+#flame{position:absolute;bottom:56px;left:50%;width:14px;height:26px;
+  border-radius:50% 50% 46% 46% / 62% 62% 38% 38%;
+  background:radial-gradient(ellipse at 50% 74%,#fffce0 0%,#ffe07a 26%,#ffa933 58%,#ff6a1e 100%);
+  box-shadow:0 0 20px 5px rgba(255,158,64,.55),0 0 46px 16px rgba(255,110,40,.26);
+  transform-origin:50% 100%;transform:translateX(-50%);
+  animation:flame 1.05s ease-in-out infinite;transition:opacity .45s,transform .45s}
+@keyframes flame{
+  0%,100%{transform:translateX(-50%) scale(1,1) rotate(-2.5deg)}
+  50%{transform:translateX(-50%) scale(1.08,.93) rotate(2.5deg)}
+}
+#candleZone.out #flame{opacity:0;transform:translateX(-50%) scale(.2,.2);animation:none}
+#candleZone.out #candle{filter:brightness(.72) saturate(.7)}
+
+.smoke{position:absolute;bottom:58px;left:50%;width:7px;height:7px;border-radius:50%;
+  background:rgba(220,210,215,.5);pointer-events:none;
+  animation:smokeUp 1.6s ease-out forwards}
+@keyframes smokeUp{
+  0%{opacity:.55;transform:translate(-50%,0) scale(.6)}
+  100%{opacity:0;transform:translate(calc(-50% + var(--sx,0px)),-72px) scale(2.4)}
+}
+
+/* ========== 第三屏：祝福 ========== */
+#s3{background:radial-gradient(ellipse 72% 58% at 50% 50%,#3d1f30 0%,#22111c 52%,#0e060a 100%)}
+#wish{position:relative;z-index:3;text-align:center;padding:0 26px}
+#wish .w1{font-family:"STKaiti","KaiTi","Kaiti SC",serif;font-size:clamp(38px,12.5vw,60px);
+  font-weight:700;color:#ffe6f0;letter-spacing:.1em;text-indent:.1em;
+  text-shadow:0 0 30px rgba(255,150,190,.45),0 2px 10px rgba(0,0,0,.4);
+  opacity:0;transform:translateY(18px);animation:wIn .95s cubic-bezier(.2,1,.3,1) .45s forwards}
+#wish .w2{margin-top:20px;font-size:clamp(15px,4.3vw,18px);color:#f0b8cd;letter-spacing:.14em;
+  opacity:0;transform:translateY(14px);animation:wIn .95s cubic-bezier(.2,1,.3,1) 1.05s forwards}
+#wish .w3{margin-top:34px;font-size:12px;color:rgba(240,184,205,.5);letter-spacing:.42em;
+  opacity:0;animation:fadeIn 1.2s ease 1.7s forwards}
+@keyframes wIn{to{opacity:1;transform:translateY(0)}}
+
+#fx{position:fixed;inset:0;pointer-events:none;z-index:9}
+</style>
+</head>
+<body>
+
+<div id="s0" class="screen">
+  <div id="moon"></div>
+  <canvas id="snow"></canvas>
+  <div id="trees"></div>
+  <div id="ground"></div>
+  <div id="s0text">
+    WHEREVER YOU ARE,<br>AND WHATEVER YOU DO<br><span>I STILL HERE</span>
+  </div>
+  <div id="s0hint">轻 点 继 续</div>
+</div>
+
+<div id="s1" class="screen hide">
+  <div id="bgtext">生日快乐</div>
+  <div id="wall"></div>
+  <div id="hint"><span>轻点一下 ❤️</span></div>
+</div>
+
+<div id="s2" class="screen hide">
+  <div id="s2tip">按住蜡烛，<b>吹灭它</b></div>
+  <div id="cakeWrap">
+    <div class="berry" style="left:36%;bottom:128px"></div>
+    <div class="berry" style="left:50%;bottom:133px"></div>
+    <div class="berry" style="left:64%;bottom:128px"></div>
+    <div class="tier t3"></div>
+    <div class="tier t2"></div>
+    <div class="tier t1"></div>
+    <div id="plate"></div>
+    <div id="candleZone">
+      <div id="flame"></div>
+      <div id="wick"></div>
+      <div id="candle"></div>
+    </div>
+  </div>
+</div>
+
+<div id="s3" class="screen hide">
+  <div id="wish">
+    <div class="w1">生日快乐</div>
+    <div class="w2">今年也顺顺的</div>
+    <div class="w3">11 · 12</div>
+  </div>
+</div>
+
+<canvas id="fx"></canvas>
+
+<script>
+(function(){
+  var WORDS = ["生日快乐","天天开心","岁岁平安","万事顺意","心想事成","身体健康",
+               "平安喜乐","一切顺利","越来越好","好运常在","笑口常开","事事如意",
+               "元气满满","闪闪发光","一路顺风","健康快乐","无忧无虑","所求皆愿",
+               "所行皆坦","自在随心","开开心心","平安顺遂","万事胜意","春风得意",
+               "步步高升","福气满满","喜从天降","如愿以偿","日子甜甜","好事发生",
+               "顺顺利利","健健康康","快快乐乐","漂漂亮亮","晴空万里","天天向上",
+               "一路繁花","岁岁欢愉","年年胜意","万事顺遂","喜乐无忧","安暖相伴",
+               "心中有光","一路向阳","岁月静好","温柔以待","星辰大海","光芒万丈",
+               "满心欢喜","喜上眉梢","皆如所愿","心有欢喜"];
+
+  /* ---------- 雪 ---------- */
+  var sc = document.getElementById('snow'), sctx = sc.getContext('2d');
+  var flakes = [], snowOn = true;
+  function initSnow(){
+    var r = window.devicePixelRatio || 1;
+    sc.width = window.innerWidth*r; sc.height = window.innerHeight*r;
+    sc.style.width = window.innerWidth+'px'; sc.style.height = window.innerHeight+'px';
+    sctx.setTransform(r,0,0,r,0,0);
+    flakes = [];
+    for(var i=0;i<150;i++){
+      flakes.push({
+        x: Math.random()*window.innerWidth,
+        y: Math.random()*window.innerHeight,
+        r: 0.6 + Math.random()*2.1,
+        sp: 0.22 + Math.random()*0.8,
+        dx: (Math.random()-0.5)*0.3,
+        a: 0.22 + Math.random()*0.6
+      });
+    }
+  }
+  function snowTick(){
+    if(!snowOn) return;
+    var W = window.innerWidth, H = window.innerHeight;
+    sctx.clearRect(0,0,W,H);
+    for(var i=0;i<flakes.length;i++){
+      var f = flakes[i];
+      f.y += f.sp;
+      f.x += f.dx + Math.sin((f.y+f.x)/70)*0.22;
+      if(f.y > H+4){ f.y = -6; f.x = Math.random()*W; }
+      if(f.x < -6) f.x = W+6;
+      if(f.x > W+6) f.x = -6;
+      sctx.beginPath();
+      sctx.fillStyle = 'rgba(255,255,255,'+f.a+')';
+      sctx.arc(f.x, f.y, f.r, 0, 6.2832);
+      sctx.fill();
+    }
+    requestAnimationFrame(snowTick);
+  }
+  initSnow(); snowTick();
+
+  /* ---------- 松树剪影 ---------- */
+  (function trees(){
+    var box = document.getElementById('trees');
+    var spec = [
+      {l:'4%',  h:132, w:58, o:.95},
+      {l:'17%', h:96,  w:44, o:.85},
+      {l:'31%', h:70,  w:34, o:.7},
+      {l:'62%', h:64,  w:32, o:.65},
+      {l:'74%', h:104, w:46, o:.88},
+      {l:'88%', h:146, w:62, o:1}
+    ];
+    spec.forEach(function(s){
+      var d = document.createElement('div');
+      d.className = 'tree';
+      d.style.left = s.l;
+      d.style.opacity = s.o;
+      d.style.borderLeftWidth = (s.w/2)+'px';
+      d.style.borderRightWidth = (s.w/2)+'px';
+      d.style.borderBottomWidth = s.h+'px';
+      d.style.borderBottomColor = '#070d18';
+      box.appendChild(d);
+    });
+  })();
+
+  /* ---------- 心形卡片墙 ---------- */
+  var wall = document.getElementById('wall');
+  function inHeart(u,v){
+    var a = u*u + v*v - 1;
+    return a*a*a - u*u*v*v*v <= 0;
+  }
+  function build(){
+    wall.innerHTML = '';
+    var w = window.innerWidth, h = window.innerHeight;
+    var size = Math.min(w*0.775, h*0.545);
+    var d = size*0.135;
+    var cw = d*0.90, ch = d*1.00;
+    var fs = Math.max(7, Math.min(12, d*0.225));
+
+    var root = document.documentElement.style;
+    root.setProperty('--bgsz', Math.min(w*0.195, h*0.105)+'px');
+    root.setProperty('--cw', cw.toFixed(1)+'px');
+    root.setProperty('--ch', ch.toFixed(1)+'px');
+    root.setProperty('--cf', fs.toFixed(1)+'px');
+
+    var pts = [], maxR = 0;
+    for(var j=-4;j<=4;j++){
+      for(var i=-4;i<=4;i++){
+        var u = i*0.27, v = 0.10 + j*0.27;
+        if(inHeart(u,v)){
+          var x = u*size/2, y = -v*size/2;
+          var r = Math.sqrt(x*x+y*y);
+          if(r>maxR) maxR = r;
+          pts.push({x:x,y:y,r:r});
+        }
+      }
+    }
+    var ymin = 1e9, ymax = -1e9;
+    pts.forEach(function(p){ if(p.y<ymin) ymin=p.y; if(p.y>ymax) ymax=p.y; });
+    var yc = (ymin+ymax)/2;
+    pts.forEach(function(p){ p.y -= yc; });
+    pts.sort(function(a,b){return a.r-b.r});
+
+    var wi = 0;
+    pts.forEach(function(p,k){
+      var el = document.createElement('div');
+      el.className = 'card';
+      el.textContent = WORDS[wi++ % WORDS.length];
+      el.style.setProperty('--x', p.x.toFixed(1)+'px');
+      el.style.setProperty('--y', p.y.toFixed(1)+'px');
+      el.style.setProperty('--r', ((k*37 % 9) - 4)+'deg');
+      el.style.setProperty('--d', (0.15 + p.r/maxR*1.05).toFixed(2)+'s');
+      el.addEventListener('animationend', function(){ el.classList.add('on'); }, {once:true});
+      el.addEventListener('click', function(e){ e.stopPropagation(); el.classList.toggle('tap'); });
+      wall.appendChild(el);
+    });
+    window.__n = pts.length;
+
+    var bg = document.getElementById('bgtext');
+    bg.classList.remove('run');
+    void bg.offsetWidth;
+    bg.classList.add('run');
+  }
+
+  /* ---------- 屏幕流转 ---------- */
+  var s0 = document.getElementById('s0'), s1 = document.getElementById('s1'),
+      s2 = document.getElementById('s2'), s3 = document.getElementById('s3');
+  function go(from, to){
+    from.classList.add('hide');
+    to.classList.remove('hide');
+  }
+  s0.addEventListener('click', function(){
+    if(s0.classList.contains('hide')) return;
+    snowOn = false;
+    build();
+    go(s0, s1);
+  });
+
+  document.getElementById('hint').addEventListener('click', function(e){
+    e.stopPropagation();
+    if(s1.classList.contains('hide')) return;
+    go(s1, s2);
+  });
+
+  /* ---------- 吹蜡烛 ---------- */
+  var zone = document.getElementById('candleZone');
+  var holdTimer = null, pressed = false, blown = false;
+  function startHold(){
+    if(blown) return;
+    pressed = true;
+    holdTimer = setTimeout(function(){ if(pressed) blow(); }, 1100);
+  }
+  function endHold(){ pressed = false; clearTimeout(holdTimer); }
+  zone.addEventListener('pointerdown', function(e){ e.preventDefault(); startHold(); });
+  zone.addEventListener('pointerup', endHold);
+  zone.addEventListener('pointercancel', endHold);
+  zone.addEventListener('pointerleave', endHold);
+
+  function blow(){
+    if(blown) return;
+    blown = true;
+    endHold();
+    zone.classList.add('out');
+    for(var i=0;i<5;i++){
+      (function(i){
+        var s = document.createElement('div');
+        s.className = 'smoke';
+        s.style.setProperty('--sx', (Math.random()*24-12).toFixed(0)+'px');
+        s.style.animationDelay = (i*0.11)+'s';
+        zone.appendChild(s);
+        setTimeout(function(){ s.remove(); }, 2200);
+      })(i);
+    }
+    setTimeout(function(){ go(s2, s3); confetti(); }, 620);
+  }
+
+  /* ---------- 纸屑 ---------- */
+  var cv = document.getElementById('fx'), ctx = cv.getContext('2d');
+  var parts = [], raf = null;
+  function resizeCanvas(){
+    var r = window.devicePixelRatio || 1;
+    cv.width = window.innerWidth*r; cv.height = window.innerHeight*r;
+    cv.style.width = window.innerWidth+'px'; cv.style.height = window.innerHeight+'px';
+    ctx.setTransform(r,0,0,r,0,0);
+  }
+  resizeCanvas();
+  window.addEventListener('resize', function(){
+    resizeCanvas(); initSnow();
+  });
+
+  var COLORS = ['#ff7fa8','#ffd166','#fff3f8','#ffb3cc','#ff9f68','#c9a7ff','#7fe3c4'];
+  function confetti(){
+    var W = window.innerWidth, H = window.innerHeight;
+    parts = [];
+    for(var i=0;i<110;i++){
+      var a = Math.random()*Math.PI*2, sp = 3 + Math.random()*7;
+      parts.push({
+        x: W/2 + (Math.random()*60-30), y: H*0.42 + (Math.random()*40-20),
+        vx: Math.cos(a)*sp, vy: Math.sin(a)*sp - 3.5,
+        w: 5 + Math.random()*6, h: 7 + Math.random()*8,
+        rot: Math.random()*Math.PI*2, vr: (Math.random()-0.5)*0.3,
+        c: COLORS[(Math.random()*COLORS.length)|0]
+      });
+    }
+    if(raf) cancelAnimationFrame(raf);
+    tick();
+  }
+  function tick(){
+    var W = window.innerWidth, H = window.innerHeight;
+    ctx.clearRect(0,0,W,H);
+    var alive = 0;
+    for(var i=0;i<parts.length;i++){
+      var p = parts[i];
+      p.vy += 0.14; p.vx *= 0.995; p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+      if(p.y > H + 40) continue;
+      alive++;
+      ctx.save();
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.c; ctx.globalAlpha = 0.92;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h*(0.6 + Math.abs(Math.cos(p.rot))*0.4));
+      ctx.restore();
+    }
+    if(alive > 0) raf = requestAnimationFrame(tick);
+    else ctx.clearRect(0,0,W,H);
+  }
+
+  window.__blow = blow;
+  window.__toS1 = function(){ snowOn=false; build(); go(s0,s1); };
+})();
+</script>
+</body>
+</html>
