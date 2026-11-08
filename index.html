@@ -218,6 +218,14 @@
     background:#0f0b1a;border:1px solid #2a2242;border-radius:8px;padding:9px;
     -webkit-user-select:text;user-select:text}
   #lnk.on{display:block}
+
+  /* 现场兑奖：点开一样，我拿一样 */
+  .recv .it.tap{cursor:pointer}
+  .recv .it.tap b{opacity:1;font-size:12px;color:#7d739a;letter-spacing:1px;font-weight:400}
+  .recv .it.got{background:rgba(245,185,66,.10)}
+  .recv .it.got b{color:#f5b942;font-weight:700;font-size:13px;letter-spacing:2px}
+  .htip{font-size:11px;color:#6f6688;letter-spacing:1px;text-align:center;
+    margin-top:4px;line-height:1.8}
 </style>
 </head>
 <body>
@@ -226,13 +234,13 @@
 <div class="scr on" id="s0">
   <div class="kicker">11 · 12</div>
   <h1 id="ttl">陆玉纯的生日抽奖</h1>
-  <div class="sub">三次机会<br>点中间按钮</div>
+  <div class="sub">三次机会<br>抽中特等奖，现在就兑现</div>
   <div class="wheel">
     <div class="pin"></div>
     <div class="disc" id="disc"></div>
     <button id="go">抽奖</button>
   </div>
-  <div class="msg" id="msg">点一下试试</div>
+  <div class="msg" id="msg">点中间开始</div>
 </div>
 
 <!-- 中奖 -->
@@ -241,18 +249,19 @@
     <div class="ico" id="pIco">🏆</div>
     <div class="badge" id="pBadge">特 等 奖</div>
     <div class="prize" id="pPrize"></div>
-    <button id="claim">确认领取</button>
+    <button id="claim">现在兑现</button>
   </div>
 </div>
 
 <!-- 领取清单 + 一封信 -->
 <div class="scr" id="s2">
   <div class="recv">
-    <div class="h">已 领 取</div>
-    <div class="it" style="--d:.15s"><i>💐</i><span>一束花</span><b>✓</b></div>
-    <div class="it" style="--d:.35s"><i>🎂</i><span>一个蛋糕</span><b>✓</b></div>
-    <div class="it" style="--d:.55s"><i>🧧</i><span>520 红包</span><b>✓</b></div>
-    <div class="it" style="--d:.75s"><i>🤗</i><span>一个拥抱</span><b>到 了 再 给</b></div>
+    <div class="h">当 场 兑 奖</div>
+    <div class="it tap" data-say="给 你" style="--d:.15s"><i>💐</i><span>一束花</span><b>点开</b></div>
+    <div class="it tap" data-say="切 给 你" style="--d:.35s"><i>🎂</i><span>一个蛋糕</span><b>点开</b></div>
+    <div class="it tap" data-say="收 着" style="--d:.55s"><i>🧧</i><span>一个红包</span><b>点开</b></div>
+    <div class="it tap" data-say="现 在" style="--d:.75s"><i>🤗</i><span>一个拥抱</span><b>点开</b></div>
+    <div class="htip">四样都在我这儿，点开一样，我拿一样</div>
   </div>
   <div class="letter">
     <p style="animation-delay:.95s">从上次见你到现在，</p>
@@ -268,19 +277,18 @@
     <p class="g" style="animation-delay:4.95s">&nbsp;</p>
     <p style="animation-delay:5.15s">那这次我自己过来。</p>
     <p class="g" style="animation-delay:5.75s">&nbsp;</p>
-    <p style="animation-delay:5.95s">生日那天赶不过来，</p>
-    <p style="animation-delay:6.35s">这份补上。</p>
+    <p style="animation-delay:5.95s">生日快乐。</p>
   </div>
-  <button id="done" style="animation-delay:6.9s">周五见</button>
+  <button id="done" style="animation-delay:6.9s">还有一句</button>
 </div>
 
 <!-- 收尾 -->
 <div class="scr" id="s3">
   <div class="stars" id="stars"></div>
   <div class="fin">
-    <div class="l1" style="animation-delay:.25s">周五晚上</div>
-    <div class="l2" style="animation-delay:.7s">三北大街</div>
-    <div class="l3" style="animation-delay:1.15s">慈溪 · 我到了叫你</div>
+    <div class="l1" style="animation-delay:.25s">生日快乐</div>
+    <div class="l2" style="animation-delay:.7s">剩下的话</div>
+    <div class="l3" style="animation-delay:1.15s">我 当 面 说</div>
     <div class="sig" style="animation-delay:1.6s">—— 安俊</div>
   </div>
 </div>
@@ -312,7 +320,7 @@ window.onerror = function(m){ window.__err = m; };
 
 var DEF = {
   t: "特 等 奖",
-  p: "中间隔了好多年",
+  p: "抬 头",
   r1: "当面",
   r2: "周五晚上",
   r3: "你说了算"
@@ -339,7 +347,7 @@ function merge(o){
 })();
 
 // 旧文案迁移：早先那句占位的话不再使用
-if(!cfg.p || cfg.p.indexOf("常熟") >= 0 || cfg.p === "一句话"){
+if(!cfg.p || cfg.p.indexOf("常熟") >= 0 || cfg.p === "一句话" || cfg.p.indexOf("隔了好多年") >= 0){
   cfg.p = DEF.p;
   if(cfg.r1 === "抬头") cfg.r1 = DEF.r1;
   try{ localStorage.setItem("bdayCfg", JSON.stringify(cfg)); }catch(e){}
@@ -364,7 +372,7 @@ function render(){
 render();
 
 /* ---------- 转盘 ---------- */
-var PRIZES = ["谢谢参与","再来一次","5 元红包","谢谢参与","免费拥抱","特等奖"];
+var PRIZES = ["谢谢参与","再来一次","红包","谢谢参与","一个拥抱","特等奖"];
 var GOLD = 5;
 var SEG = 360 / PRIZES.length;
 var disc = document.getElementById("disc");
@@ -386,8 +394,8 @@ PRIZES.forEach(function(name, i){
 });
 
 var rot = 0, tries = 0, busy = false;
-var PLAN = [0, 1, GOLD];
-var ICO = {"谢谢参与":"😅","再来一次":"🔁","5 元红包":"🧧","免费拥抱":"🤗","特等奖":"🏆"};
+var PLAN = [0, 3, GOLD];   // 前两次都没中，第三次特等奖
+var ICO = {"谢谢参与":"😅","再来一次":"🔁","红包":"🧧","一个拥抱":"🤗","特等奖":"🏆"};
 var pin = document.querySelector(".pin");
 var flash = document.getElementById("flash");
 
@@ -433,11 +441,21 @@ function spin(){
         document.getElementById("s1").classList.add("on");
       }, 600);
     }else{
-      msg.textContent = tries === 1 ? "手气一般，还有两次" : "就差一点，最后一次";
+      msg.textContent = tries === 1 ? "没中，还有两次" : "没中，最后一次";
     }
   }, 3900);
 }
 go.addEventListener("click", spin);
+
+// 现场兑奖：点开一样，我拿一样
+Array.prototype.forEach.call(document.querySelectorAll("#s2 .it.tap"), function(el){
+  el.addEventListener("click", function(){
+    if(el.classList.contains("got")) return;
+    el.classList.add("got");
+    var b = el.querySelector("b");
+    if(b) b.textContent = el.getAttribute("data-say") || "\u2713";
+  });
+});
 
 document.getElementById("claim").addEventListener("click", function(){
   document.getElementById("s1").classList.add("gone");
