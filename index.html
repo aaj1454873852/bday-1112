@@ -275,7 +275,7 @@
   <button id="snd" type="button" aria-label="声音">🔊</button>
   <div class="kicker">11 · 12</div>
   <h1 id="ttl">陆玉纯的 25 岁生日</h1>
-  <div class="sub">今天想跟你说件事<br>先让你抽个奖</div>
+  <div class="sub">今天不跟你说别的<br>先让你抽个奖</div>
   <div class="wheel">
     <div class="pin"></div>
     <div class="lamps" id="lamps"></div>
@@ -297,21 +297,18 @@
     <div class="htip">四样都在我这儿，点开哪样，我就给你哪样</div>
   </div>
   <div class="letter">
-    <p style="animation-delay:.95s">我们在一起过，</p>
-    <p style="animation-delay:1.35s">后来还是散了。</p>
-    <p class="g" style="animation-delay:1.8s">&nbsp;</p>
-    <p style="animation-delay:2s">那几年各过各的，也没怎么联系。</p>
-    <p style="animation-delay:2.5s">我以为这事就过去了。</p>
-    <p class="g" style="animation-delay:3s">&nbsp;</p>
-    <p style="animation-delay:3.2s">结果兜兜转转，又碰上你。</p>
-    <p style="animation-delay:3.7s">才知道我们都还是一个人。</p>
-    <p class="g" style="animation-delay:4.2s">&nbsp;</p>
-    <p style="animation-delay:4.4s">那这次，我不想再绕了。</p>
-    <p style="animation-delay:4.9s">我想跟你重新开始。</p>
-    <p class="g" style="animation-delay:5.4s">&nbsp;</p>
-    <p style="animation-delay:5.6s">生日快乐。</p>
+    <p style="animation-delay:.95s">今天来给你过生日。</p>
+    <p style="animation-delay:1.35s">东西不多，就这几样，都是今天的。</p>
+    <p class="g" style="animation-delay:1.75s">&nbsp;</p>
+    <p style="animation-delay:1.95s">有句话想提，不想今天说得太满。</p>
+    <p style="animation-delay:2.45s">以前没抽中的，不代表以后也抽不中。</p>
+    <p class="g" style="animation-delay:2.85s">&nbsp;</p>
+    <p style="animation-delay:3.05s">我今天手气挺好，就顺嘴说一句。</p>
+    <p style="animation-delay:3.55s">剩下的，以后再说。</p>
+    <p class="g" style="animation-delay:3.95s">&nbsp;</p>
+    <p style="animation-delay:4.15s">生日快乐。</p>
   </div>
-  <button id="done" style="animation-delay:6.6s">还有一句</button>
+  <button id="done" style="animation-delay:5.05s">还有一句</button>
 </div>
 
 <!-- 收尾 -->
@@ -321,9 +318,9 @@
     <div class="l1" style="animation-delay:.2s">25 岁生日快乐</div>
     <div class="l2" style="animation-delay:.6s">愿你想要的都得到</div>
     <div class="ln" style="animation-delay:.95s">愿你担心的都不来</div>
-    <div class="ln" style="animation-delay:1.25s">愿你往后每一年，都被人认真对待</div>
-    <div class="ln dim" style="animation-delay:1.65s">抽奖只有三次机会</div>
-    <div class="ln gold" style="animation-delay:2s">你，我不想再错过</div>
+    <div class="ln" style="animation-delay:1.25s">愿你往后每一年，都过得比今年顺</div>
+    <div class="ln dim" style="animation-delay:1.65s">今天你手气不错</div>
+    <div class="ln gold" style="animation-delay:2s">没说出口的那句，等你想听我再讲</div>
     <div class="sig" style="animation-delay:2.4s">—— 安俊</div>
   </div>
 </div>
@@ -487,7 +484,7 @@ function spin(){
       pips[2].classList.add("on", "big");
       lamps.classList.add("all");
       box2.classList.add("gold");
-      say("特等奖", "这次没让它跑了");
+      say("特等奖", "总算中了");
       var s0 = document.getElementById("s0");
       s0.classList.add("shake");
       setTimeout(function(){ s0.classList.remove("shake"); }, 700);
@@ -498,8 +495,8 @@ function spin(){
       }, 1500);
     }else{
       pips[tries - 1].classList.add("on");
-      if(tries === 1) say("谢谢参与", "差一点。还有两次机会");
-      else say("再来一次", "又是差一点。就剩最后一次了");
+      if(tries === 1) say("谢谢参与", "差一点，还有两次");
+      else say("再来一次", "又是差一点，最后一次了");
       go.disabled = false;
     }
   }, 3900);
