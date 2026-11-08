@@ -20,6 +20,12 @@
   h1{font-size:24px;font-weight:600;letter-spacing:2px;text-align:center}
   .sub{font-size:13px;color:#8a80a8;letter-spacing:1px;text-align:center;line-height:1.9}
 
+  /* 声音开关 */
+  #snd{position:absolute;top:12px;right:12px;z-index:6;width:34px;height:34px;
+    border-radius:50%;border:1px solid #2a2242;background:transparent;
+    font-size:14px;line-height:1;color:#a89fc4;cursor:pointer;opacity:.62}
+  #snd:active{opacity:1}
+
   /* 转盘 */
   .wheel{position:relative;width:min(78vw,320px);aspect-ratio:1/1;margin:6px 0}
   .disc{position:absolute;inset:0;border-radius:50%;
@@ -38,6 +44,20 @@
   .lbl span{position:absolute;transform:translate(-50%,-50%)}
   .lbl.gold{color:#3a2a00;font-weight:700}
 
+  /* 外圈灯珠 */
+  .lamps{position:absolute;inset:0;z-index:2;pointer-events:none}
+  .lamps i{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;
+    border-radius:50%;background:#f5b942;opacity:.3;
+    transform:rotate(var(--a)) translateY(calc(-1 * var(--r)));
+    box-shadow:0 0 7px rgba(245,185,66,.7);
+    animation:lampIdle 3.2s ease-in-out infinite;
+    animation-delay:calc(-0.13s * var(--i))}
+  @keyframes lampIdle{0%,100%{opacity:.22}50%{opacity:.55}}
+  .lamps.run i{animation:lampRun .46s linear infinite;
+    animation-delay:calc(-0.038s * var(--i))}
+  @keyframes lampRun{0%,100%{opacity:.26}50%{opacity:1}}
+  .lamps.all i{opacity:1;animation:none}
+
   .pin{position:absolute;left:50%;top:-14px;transform:translateX(-50%);
     width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;
     border-top:22px solid #fff;filter:drop-shadow(0 3px 6px rgba(0,0,0,.6));z-index:3}
@@ -47,12 +67,24 @@
     background:radial-gradient(circle at 35% 30%,#fff,#d9d2ef);
     color:#1a1230;font-size:15px;font-weight:700;letter-spacing:2px;
     box-shadow:0 6px 18px rgba(0,0,0,.55),0 0 0 4px #0a0714;
-    transition:transform .12s}
+    transition:transform .12s;z-index:4}
   #go:active{transform:translate(-50%,-50%) scale(.94)}
   #go[disabled]{opacity:.5}
 
-  .msg{font-size:15px;color:#c9c0e0;letter-spacing:1px;text-align:center;
-    min-height:24px;line-height:1.7}
+  /* 三次机会：进度星 */
+  .pips{display:flex;gap:9px;margin-top:-10px}
+  .pips i{width:7px;height:7px;border-radius:50%;background:#2a2242;
+    transition:background .3s,box-shadow .3s,transform .3s}
+  .pips i.on{background:#9b8ce0;box-shadow:0 0 9px rgba(155,140,224,.8);transform:scale(1.15)}
+  .pips i.on.big{background:#f5b942;box-shadow:0 0 12px rgba(245,185,66,.95)}
+
+  /* 抽奖结果 */
+  .msg{display:flex;flex-direction:column;align-items:center;gap:6px;
+    min-height:48px;text-align:center}
+  #msg{font-size:16px;font-weight:600;color:#dcd5ef;letter-spacing:2px;line-height:1.5}
+  .msub{font-size:12px;color:#8a80a8;letter-spacing:1px;line-height:1.5;min-height:16px}
+  .msg.gold #msg{color:#f5b942;font-size:21px;letter-spacing:5px;text-indent:5px;
+    text-shadow:0 0 18px rgba(245,185,66,.55)}
 
   /* 中奖：特等奖 */
   .win{display:flex;flex-direction:column;align-items:center;gap:7px;margin:2px 0 14px}
@@ -91,8 +123,8 @@
   .fin{display:flex;flex-direction:column;gap:13px;align-items:center;text-align:center}
   .fin .l1{font-size:15px;color:#a89fc4;letter-spacing:2px}
   .fin .l2{font-size:26px;font-weight:600;letter-spacing:3px}
-  .fin .l3{font-size:14px;color:#b6aed0;letter-spacing:1px}
   .fin .ln{font-size:15px;color:#c3bbd8;letter-spacing:.5px;line-height:1.5}
+  .fin .ln.dim{font-size:13.5px;color:#8a80a8;letter-spacing:1px}
   .fin .ln.gold{color:#f5b942;text-shadow:0 0 18px rgba(245,185,66,.35)}
   .fin .sig{font-size:13px;color:#8d84a6;letter-spacing:2px;margin-top:10px}
 
@@ -118,6 +150,10 @@
   @keyframes shake{0%,100%{transform:translateX(-50%) rotate(0)}
     25%{transform:translateX(-50%) rotate(-8deg)}
     75%{transform:translateX(-50%) rotate(8deg)}}
+  #s0.shake{animation:scrShake .55s ease}
+  @keyframes scrShake{0%,100%{transform:translate(0,0)}
+    18%{transform:translate(-4px,2px)}38%{transform:translate(4px,-2px)}
+    58%{transform:translate(-3px,1px)}78%{transform:translate(2px,-1px)}}
 
   /* 中奖页入场 */
   #s2.on .win i{animation:winIco .6s cubic-bezier(.2,1.5,.4,1) both}
@@ -143,18 +179,15 @@
   .recv .it{position:relative}
   .recv .it .fx{position:absolute;inset:0;pointer-events:none;z-index:3}
   .recv .it .fx em{position:absolute;display:block;opacity:0}
-  /* 平时轻轻活着 */
   #s2.on .recv .it i{animation:idle 3.6s ease-in-out infinite;
     animation-delay:calc(var(--d,0s) + .5s)}
   @keyframes idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
-  /* 点开后一道光晕 */
   .recv .it.got::after{content:"";position:absolute;left:-8px;top:50%;
     width:44px;height:44px;margin-top:-22px;border-radius:50%;pointer-events:none;
     background:radial-gradient(circle,rgba(245,185,66,.32),transparent 68%);
     animation:fxGlow .95s ease both}
   @keyframes fxGlow{0%{opacity:0;transform:scale(.35)}
     32%{opacity:1;transform:scale(1.1)}100%{opacity:0;transform:scale(1.6)}}
-  /* 蛋糕：蹦一下 + 轻轻晃 */
   #s2 .recv .it.got[data-fx="cake"] i{animation:fxCake .95s ease both}
   @keyframes fxCake{0%{transform:none}
     16%{transform:scale(1.3) translateY(-4px)}
@@ -162,12 +195,10 @@
     56%{transform:scale(1.07) rotate(6deg)}
     78%{transform:scale(.99) rotate(-2deg)}
     100%{transform:none}}
-  /* 花：慢慢绽开 */
   #s2 .recv .it.got[data-fx="flower"] i{animation:fxFlower 1.25s cubic-bezier(.2,1,.3,1) both}
   @keyframes fxFlower{0%{transform:scale(.6) rotate(-16deg)}
     55%{transform:scale(1.2) rotate(6deg)}
     100%{transform:scale(1) rotate(0)}}
-  /* 红包：摇一摇 */
   #s2 .recv .it.got[data-fx="packet"] i{animation:fxPacket .68s ease-in-out both}
   @keyframes fxPacket{0%,100%{transform:none}
     14%{transform:rotate(-14deg) translateX(-2px)}
@@ -175,14 +206,12 @@
     46%{transform:rotate(-10deg)}
     62%{transform:rotate(8deg)}
     78%{transform:rotate(-4deg)}}
-  /* 抱抱：一收一放 */
   #s2 .recv .it.got[data-fx="hug"] i{animation:fxHug 1.15s ease-in-out both}
   @keyframes fxHug{0%{transform:none}
     20%{transform:scaleX(.76) scaleY(1.14)}
     44%{transform:scaleX(1.16) scaleY(.92)}
     66%{transform:scaleX(.94) scaleY(1.05)}
     100%{transform:none}}
-  /* 粒子 */
   .pt.spark{width:4px;height:4px;border-radius:50%;background:#ffd47a;
     box-shadow:0 0 9px rgba(255,190,90,.95);animation:ptRise 1s ease-out both}
   @keyframes ptRise{0%{opacity:0;transform:translateY(5px) scale(.5)}
@@ -210,13 +239,13 @@
   @keyframes ptHeart{0%{opacity:0;transform:translate(0,5px) rotate(45deg) scale(.5)}
     22%{opacity:1}
     100%{opacity:0;transform:translate(var(--dx,8px),-26px) rotate(45deg) scale(1.15)}}
-  /* 点开后那句话弹出来 */
   #s2 .recv .it.got b.pop{animation:pop2 .5s cubic-bezier(.2,1.6,.4,1) both}
-  /* 手机若开了"减少动态效果"，就都不动 */
   @media (prefers-reduced-motion: reduce){
     .recv .it .fx,.recv .it.got::after{display:none}
     #s2.on .recv .it i,.recv .it.got i{animation:none !important}
     #s2 .recv .it.got b.pop{animation:none !important}
+    .lamps i{animation:none;opacity:.4}
+    #s0.shake{animation:none}
   }
 
   /* 收尾 */
@@ -230,7 +259,6 @@
   @keyframes tw{0%,100%{opacity:0;transform:translateY(0) scale(.5)}
     50%{opacity:.6;transform:translateY(-16px) scale(1)}}
 
-
   /* 现场兑奖：点开一样，我拿一样 */
   .recv .it.tap{cursor:pointer}
   .recv .it.tap b{opacity:1;font-size:12px;color:#7d739a;letter-spacing:1px;font-weight:400}
@@ -242,17 +270,20 @@
 </head>
 <body>
 
-<!-- 开场 -->
+<!-- 开场：抽奖 -->
 <div class="scr on" id="s0">
+  <button id="snd" type="button" aria-label="声音">🔊</button>
   <div class="kicker">11 · 12</div>
   <h1 id="ttl">陆玉纯的 25 岁生日</h1>
-  <div class="sub">三次机会<br>抽中特等奖</div>
+  <div class="sub">今天想跟你说件事<br>先让你抽个奖</div>
   <div class="wheel">
     <div class="pin"></div>
+    <div class="lamps" id="lamps"></div>
     <div class="disc" id="disc"></div>
     <button id="go">抽奖</button>
   </div>
-  <div class="msg" id="msg">点中间开始</div>
+  <div class="pips" id="pips"><i></i><i></i><i></i></div>
+  <div class="msg"><span id="msg">点中间开始</span><span class="msub" id="msub">三次机会，中一次特等奖</span></div>
 </div>
 
 <!-- 中奖：特等奖 + 当场兑奖 + 一封信 -->
@@ -263,7 +294,7 @@
     <div class="it tap" data-fx="flower" data-say="给 你" style="--d:.35s"><i>💐</i><span>一束花</span><b>点开</b><div class="fx"></div></div>
     <div class="it tap" data-fx="packet" data-say="收 着" style="--d:.55s"><i>🧧</i><span>一个红包</span><b>点开</b><div class="fx"></div></div>
     <div class="it tap" data-fx="hug" data-say="抱 一 下" style="--d:.75s"><i>🤗</i><span>一个拥抱</span><b>点开</b><div class="fx"></div></div>
-    <div class="htip">四样都在我这儿，点开一样，我拿一样</div>
+    <div class="htip">四样都在我这儿，点开哪样，我就给你哪样</div>
   </div>
   <div class="letter">
     <p style="animation-delay:.95s">我们在一起过，</p>
@@ -289,12 +320,11 @@
   <div class="fin">
     <div class="l1" style="animation-delay:.2s">25 岁生日快乐</div>
     <div class="l2" style="animation-delay:.6s">愿你想要的都得到</div>
-    <div class="ln" style="animation-delay:.95s">担心的都不来</div>
-    <div class="ln" style="animation-delay:1.25s">愿你每天都睡个好觉，醒来有好事</div>
-    <div class="ln" style="animation-delay:1.6s">愿你去的地方，天都晴</div>
-    <div class="ln" style="animation-delay:1.95s">愿你想见的人，转身就能看见</div>
-    <div class="ln gold" style="animation-delay:2.35s">也愿往后每一年这一天，我都在</div>
-    <div class="sig" style="animation-delay:2.8s">—— 安俊</div>
+    <div class="ln" style="animation-delay:.95s">愿你担心的都不来</div>
+    <div class="ln" style="animation-delay:1.25s">愿你往后每一年，都被人认真对待</div>
+    <div class="ln dim" style="animation-delay:1.65s">抽奖只有三次机会</div>
+    <div class="ln gold" style="animation-delay:2s">你，我不想再错过</div>
+    <div class="sig" style="animation-delay:2.4s">—— 安俊</div>
   </div>
 </div>
 
@@ -311,6 +341,10 @@ var SEG = 360 / PRIZES.length;
 var disc = document.getElementById("disc");
 var go = document.getElementById("go");
 var msg = document.getElementById("msg");
+var msub = document.getElementById("msub");
+var lamps = document.getElementById("lamps");
+var pips = document.querySelectorAll(".pips i");
+var box2 = msg.parentNode;
 
 var _W = disc.offsetWidth || 300;
 var _R = _W * 0.31;
@@ -326,8 +360,20 @@ PRIZES.forEach(function(name, i){
   disc.appendChild(wrap);
 });
 
+// 外圈灯珠（24 颗，绕一圈）
+(function makeLamps(){
+  var R = Math.round(disc.offsetWidth / 2) + 4;
+  for(var i = 0; i < 24; i++){
+    var b = document.createElement("i");
+    b.style.setProperty("--a", Math.round(i * 360 / 24) + "deg");
+    b.style.setProperty("--r", R + "px");
+    b.style.setProperty("--i", i);
+    lamps.appendChild(b);
+  }
+})();
+
 var rot = 0, tries = 0, busy = false;
-var PLAN = [0, 3, GOLD];   // 前两次都没中，第三次特等奖
+var PLAN = [0, 1, GOLD];   // 第一次谢谢参与、第二次再来一次、第三次特等奖
 var pin = document.querySelector(".pin");
 
 // 收尾页的浮尘
@@ -345,31 +391,116 @@ var pin = document.querySelector(".pin");
   }
 })();
 
+/* ---------- 声音：现场合成，不加载任何文件 ---------- */
+var AC = null, sound = true;
+function actx(){
+  if(!sound) return null;
+  try{
+    if(!AC){
+      var C = window.AudioContext || window.webkitAudioContext;
+      if(!C) return null;
+      AC = new C();
+    }
+    if(AC.state === "suspended") AC.resume();
+    return AC;
+  }catch(e){ return null; }
+}
+function beep(freq, dur, vol, type){
+  var a = actx(); if(!a) return;
+  try{
+    var o = a.createOscillator(), g = a.createGain();
+    o.type = type || "sine";
+    o.frequency.value = freq;
+    o.connect(g); g.connect(a.destination);
+    var t = a.currentTime, v = vol || .05;
+    g.gain.setValueAtTime(.0001, t);
+    g.gain.exponentialRampToValueAtTime(v, t + .01);
+    g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.start(t); o.stop(t + dur + .02);
+  }catch(e){}
+}
+function tick(){ beep(1250, .05, .045, "square"); }
+function winSound(){
+  [660, 880, 1320].forEach(function(f, i){
+    setTimeout(function(){ beep(f, .5, .06, "triangle"); }, i * 110);
+  });
+}
+var ticking = false, tickTimer = null;
+function startTicks(){
+  ticking = true;
+  var iv = 50;
+  (function loop(){
+    if(!ticking) return;
+    tick();
+    iv = Math.min(iv * 1.16, 420);
+    tickTimer = setTimeout(loop, iv);
+  })();
+}
+function stopTicks(){ ticking = false; clearTimeout(tickTimer); }
+
+document.getElementById("snd").addEventListener("click", function(){
+  sound = !sound;
+  this.textContent = sound ? "🔊" : "🔇";
+  if(sound){ actx(); beep(880, .14, .05, "sine"); }
+});
+
+// 第一次碰到屏幕就把声音通道打开（手机上更稳）
+function prime(){ try{ if(sound) actx(); }catch(e){} }
+document.addEventListener("touchstart", prime, {passive:true});
+document.addEventListener("mousedown", prime);
+
+/* ---------- 抽奖 ---------- */
 function angleFor(i){
   var a = (-(i * SEG + SEG / 2)) % 360;
   return (a + 360) % 360;
 }
 
+function say(main, sub){
+  msg.textContent = main;
+  msub.textContent = sub || "";
+}
+
 function spin(){
   if(busy || tries >= 3) return;
-  busy = true; go.disabled = true; msg.textContent = "……";
-  disc.classList.add("spinning"); pin.classList.add("shake");
+  busy = true; go.disabled = true;
+  box2.classList.remove("gold");
+  say("……", ["第一次机会", "第二次机会", "最后一次机会"][tries]);
+  disc.classList.add("spinning");
+  pin.classList.add("shake");
+  lamps.classList.add("run");
+  startTicks();
+
   var idx = PLAN[tries];
   var r = angleFor(idx);
   while(r < rot + 360 * 4) r += 360;
   rot = r;
   disc.style.transform = "rotate(" + rot + "deg)";
+
   setTimeout(function(){
-    busy = false; tries++; go.disabled = false;
-    disc.classList.remove("spinning"); pin.classList.remove("shake");
+    busy = false; tries++;
+    disc.classList.remove("spinning");
+    pin.classList.remove("shake");
+    lamps.classList.remove("run");
+    stopTicks();
+
     if(idx === GOLD){
-      msg.textContent = "！";
+      pips[2].classList.add("on", "big");
+      lamps.classList.add("all");
+      box2.classList.add("gold");
+      say("特等奖", "这次没让它跑了");
+      var s0 = document.getElementById("s0");
+      s0.classList.add("shake");
+      setTimeout(function(){ s0.classList.remove("shake"); }, 700);
+      winSound();
       setTimeout(function(){
-        document.getElementById("s0").classList.add("gone");
+        s0.classList.add("gone");
         document.getElementById("s2").classList.add("on");
-      }, 600);
+      }, 1500);
     }else{
-      msg.textContent = tries === 1 ? "没中，还有两次" : "没中，最后一次";
+      pips[tries - 1].classList.add("on");
+      if(tries === 1) say("谢谢参与", "差一点。还有两次机会");
+      else say("再来一次", "又是差一点。就剩最后一次了");
+      go.disabled = false;
     }
   }, 3900);
 }
@@ -410,10 +541,9 @@ Array.prototype.forEach.call(document.querySelectorAll("#s2 .it.tap"), function(
       void b.offsetWidth;
       b.classList.add("pop");
     }
-    playFx(el);
+    try{ playFx(el); }catch(e){}
   });
 });
-
 
 document.getElementById("done").addEventListener("click", function(){
   document.getElementById("s2").classList.add("gone");
@@ -421,7 +551,6 @@ document.getElementById("done").addEventListener("click", function(){
     document.getElementById("s3").classList.add("on");
   }, 450);
 });
-
 </script>
 </body>
 </html>
