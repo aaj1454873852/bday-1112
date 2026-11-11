@@ -92,6 +92,11 @@
     filter:drop-shadow(0 8px 20px rgba(245,185,66,.45))}
   .win b{font-size:25px;font-weight:700;letter-spacing:7px;text-indent:7px;
     color:#f5b942;text-shadow:0 0 18px rgba(245,185,66,.45)}
+  .win .wl{font-size:12.5px;letter-spacing:3px;color:#a89fc4;text-align:center}
+  .win .wl.big{font-size:18px;font-weight:600;color:#f5b942;letter-spacing:4px;
+    text-indent:4px;text-shadow:0 0 18px rgba(245,185,66,.45)}
+  #s2.on .win .wl{animation:winTxt .7s ease .3s both}
+  #s2.on .win .wl.big{animation-delay:.44s}
 
   /* 领取清单 + 一封信 */
   #s2{justify-content:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;
@@ -106,17 +111,20 @@
   @keyframes up{to{opacity:1;transform:translateY(0)}}
   #s2.on .recv .it{animation-name:up;animation-duration:.5s;
     animation-timing-function:ease;animation-fill-mode:forwards}
-  .letter{margin-top:11px;font-size:14px;line-height:1.85;color:#c9c0e0;
-    letter-spacing:.4px}
+  .letter{flex:none;max-height:0;opacity:0;overflow:hidden;margin:0;font-size:14px;
+    line-height:1.85;color:#c9c0e0;letter-spacing:.4px;
+    transition:max-height 1.1s ease,opacity .85s ease,margin 1.1s ease}
+  .letter.show{max-height:2600px;opacity:1;margin-top:15px}
   .letter p{opacity:0;transform:translateY(8px)}
   .letter p.g{line-height:.55}
-  #s2.on .letter p{animation-name:up;animation-duration:.7s;
+  .letter p.big{font-size:16.5px;font-weight:600;color:#f5b942;letter-spacing:2px;
+    line-height:1.85;text-align:center;text-shadow:0 0 18px rgba(245,185,66,.42)}
+  #s2 .letter.show p{animation-name:up;animation-duration:.75s;
     animation-timing-function:ease;animation-fill-mode:forwards}
   #done{margin-top:13px;padding:14px 36px;border-radius:12px;border:1px solid #3a2f5c;
     background:transparent;color:#cfc7e2;font-size:15px;font-family:inherit;
-    letter-spacing:3px;cursor:pointer;opacity:0}
-  #s2.on #done{animation-name:up;animation-duration:.6s;
-    animation-timing-function:ease;animation-fill-mode:forwards}
+    letter-spacing:3px;cursor:pointer;opacity:0;pointer-events:none}
+  #done.show{pointer-events:auto;animation:up .6s ease .9s both}
   #done:active{opacity:.7}
 
   /* 最后一页 */
@@ -218,6 +226,13 @@
     44%{transform:scaleX(1.16) scaleY(.92)}
     66%{transform:scaleX(.94) scaleY(1.05)}
     100%{transform:none}}
+  #s2 .recv .it.got[data-fx="scratch"] i{animation:fxScratch 1s ease both}
+  @keyframes fxScratch{0%{transform:none}
+    14%{transform:rotate(-9deg) scale(1.05)}
+    34%{transform:rotate(9deg) scale(1.12)}
+    54%{transform:rotate(-7deg) scale(1.04)}
+    74%{transform:rotate(5deg) scale(1.08)}
+    100%{transform:none}}
   .pt.spark{width:4px;height:4px;border-radius:50%;background:#ffd47a;
     box-shadow:0 0 9px rgba(255,190,90,.95);animation:ptRise 1s ease-out both}
   @keyframes ptRise{0%{opacity:0;transform:translateY(5px) scale(.5)}
@@ -248,7 +263,7 @@
   #s2 .recv .it.got b.pop{animation:pop2 .5s cubic-bezier(.2,1.6,.4,1) both}
   @media (prefers-reduced-motion: reduce){
     .recv .it .fx,.recv .it.got::after,.burst{display:none}
-    .finale{transition:none}
+    .letter{transition:none}
     #s2.on .recv .it i,.recv .it.got i{animation:none !important}
     #s2 .recv .it.got b.pop{animation:none !important}
     .lamps i{animation:none;opacity:.4}
@@ -277,19 +292,7 @@
   .htip{font-size:11px;color:#6f6688;letter-spacing:1px;text-align:center;
     margin-top:2px;line-height:1.8}
 
-  /* 四样兑完，那句心里话才浮出来 */
-  .finale{max-height:0;opacity:0;overflow:hidden;text-align:center;
-    transition:max-height .9s ease,opacity .9s ease,margin .9s ease;margin:0}
-  .finale.show{max-height:230px;opacity:1;margin:4px 0 0}
-  .finale .fl{font-size:13.5px;color:#cfc7e2;letter-spacing:4px;line-height:2.1}
-  .finale .fl.big{font-size:19px;font-weight:600;color:#f5b942;letter-spacing:5px;
-    text-indent:5px;line-height:1.9;text-shadow:0 0 20px rgba(245,185,66,.5)}
-  .finale .fs{font-size:12px;color:#8a80a8;letter-spacing:2px;margin-top:7px}
-  .finale.show .fl{animation:fIn .9s ease both}
-  .finale.show .fl.big{animation:fIn .9s ease .18s both}
-  .finale.show .fs{animation:fIn .9s ease .36s both}
-  @keyframes fIn{0%{opacity:0;transform:translateY(12px) scale(.96)}
-    100%{opacity:1;transform:none}}
+  /* 五样都点开，那封信才展开 */
   .burst{position:fixed;inset:0;pointer-events:none;z-index:9;overflow:hidden}
   .burst em{position:absolute;top:-14px;width:7px;height:9px;opacity:0;
     border-radius:50% 50% 50% 0;background:#f7a8c4;
@@ -321,29 +324,26 @@
 <!-- 中奖：特等奖 + 当场兑奖 + 一封信 -->
 <div class="scr" id="s2">
   <div class="recv">
-    <div class="win"><i>🏆</i><b>特等奖</b></div>
+    <div class="win"><i>🏆</i><b>特等奖</b><div class="wl">特等奖的奖品是——</div><div class="wl big">全部，还有我。</div></div>
     <div class="it tap" data-fx="cake" data-say="已 兑" style="--d:.15s"><i>🎂</i><div class="tx"><span>蛋糕</span><em>以后每个生日，蛋糕我来买</em></div><div class="rt"><u>每年一次</u><b>点开</b></div><div class="fx"></div></div>
     <div class="it tap" data-fx="flower" data-say="已 兑" style="--d:.35s"><i>💐</i><div class="tx"><span>鲜花</span><em>想送你花的时候，不用等节日</em></div><div class="rt"><u>不限次数</u><b>点开</b></div><div class="fx"></div></div>
     <div class="it tap" data-fx="packet" data-say="已 兑" style="--d:.55s"><i>🧧</i><div class="tx"><span>红包</span><em>我的，你随便花</em></div><div class="rt"><u>随时兑现</u><b>点开</b></div><div class="fx"></div></div>
     <div class="it tap" data-fx="hug" data-say="抱 一 下" style="--d:.75s"><i>👫</i><div class="tx"><span>对象</span><em>有效期：一辈子</em></div><div class="rt"><u>不设期限</u><b>点开</b></div><div class="fx"></div></div>
-    <div class="htip">四样都在我这儿，点开哪样，我就给你哪样</div>
-    <div class="finale" id="finale"><div class="fl">漫长的岁月里</div><div class="fl big">我只想和你在一起</div><div class="fs">这一次，我不想再错过你</div></div>
+    <div class="it tap" data-fx="scratch" data-say="已 兑" style="--d:.95s"><i>🎟️</i><div class="tx"><span>刮刮乐</span><em>陪你去买，一起刮</em></div><div class="rt"><u>不限次数</u><b>点开</b></div><div class="fx"></div></div>
+    <div class="htip">五样都在我这儿，点开哪样，我就给你哪样</div>
   </div>
   <div class="letter">
-    <p style="animation-delay:.95s">今天来给你过生日。</p>
-    <p style="animation-delay:1.3s">有些话想当面说，又怕今天说得太重。</p>
-    <p class="g" style="animation-delay:1.7s">&nbsp;</p>
-    <p style="animation-delay:1.9s">分开这几年，我换过城市、换过工作，</p>
-    <p style="animation-delay:2.3s">只有一样没换——想起你的时候，会停一下。</p>
+    <p style="animation-delay:1.1s">鲜花、蛋糕、刮刮乐，今天的生日礼物都想送给你。还有一份我藏在心里的心愿，也想趁着今天，认真告诉你。</p>
+    <p class="g" style="animation-delay:1.5s">&nbsp;</p>
+    <p style="animation-delay:1.7s">隔了几年再次遇见你，我才明白，有些人即使走过很长的时间，还是会被放在心上。我不想再错过你，也不想只在回忆里想念你。</p>
+    <p class="g" style="animation-delay:2.1s">&nbsp;</p>
+    <p class="big" style="animation-delay:2.3s">漫长的岁月里，<br>我只想和你在一起。</p>
     <p class="g" style="animation-delay:2.7s">&nbsp;</p>
-    <p style="animation-delay:2.9s">有些人错过一次，就是一辈子。</p>
-    <p style="animation-delay:3.3s">所以这一次，我不想再错过你。</p>
-    <p class="g" style="animation-delay:3.7s">&nbsp;</p>
-    <p style="animation-delay:3.9s">慢慢来，不着急。反正我不打算再放手了。</p>
-    <p class="g" style="animation-delay:4.3s">&nbsp;</p>
-    <p style="animation-delay:4.5s">生日快乐。</p>
+    <p style="animation-delay:2.9s">如果你愿意，我想从现在开始重新牵起你的手。往后的日子，无论平凡还是热闹，我都想陪你一起经历；好好珍惜你，认真爱你，不轻易放手。</p>
+    <p class="g" style="animation-delay:3.3s">&nbsp;</p>
+    <p style="animation-delay:3.5s">这份心意没有附带期限，也不需要你立刻回答。你可以慢慢感受、慢慢决定。我只是希望你知道：这一次，我真的不想再错过你。</p>
   </div>
-  <button id="done" style="animation-delay:5.3s">还有一句</button>
+  <button id="done" style="animation-delay:6.2s">最后一句</button>
   <div class="burst" id="burst"></div>
 </div>
 
@@ -351,15 +351,11 @@
 <div class="scr" id="s3">
   <div class="stars" id="stars"></div>
   <div class="fin">
-    <div class="l1" style="animation-delay:.2s">25 岁生日快乐</div>
-    <div class="l2" style="animation-delay:.6s">愿你想要的都得到</div>
-    <div class="ln" style="animation-delay:.95s">愿你担心的都不来</div>
-    <div class="ln" style="animation-delay:1.25s">愿你往后每一年，都过得比今年顺</div>
-    <div class="ln dim" style="animation-delay:1.65s">今天你抽中了特等奖</div>
-    <div class="ln dim" style="animation-delay:1.9s">其实我最想抽中的，是你</div>
-    <div class="ln gold" style="animation-delay:2.3s">漫长的岁月里，我只想和你在一起</div>
-    <div class="ln gold" style="animation-delay:2.62s">这一次，我不想再错过你</div>
-    <div class="sig" style="animation-delay:2.95s">—— 安俊</div>
+    <div class="l1" style="animation-delay:.2s">生日快乐</div>
+    <div class="l2" style="animation-delay:.6s">愿你的新一岁<br>被温柔与欢喜围绕</div>
+    <div class="ln" style="animation-delay:1.1s">也愿未来的某一天，我们能并肩走很久</div>
+    <div class="ln gold" style="animation-delay:1.6s">我只想和你在一起</div>
+    <div class="sig" style="animation-delay:2.05s">—— 安俊</div>
   </div>
 </div>
 
@@ -367,7 +363,7 @@
 window.__err = "none";
 window.onerror = function(m){ window.__err = m; };
 
-/* 四样固定：蛋糕、鲜花、红包、抱抱 */
+/* 五样固定：蛋糕、鲜花、红包、对象、刮刮乐 */
 
 /* ---------- 转盘 ---------- */
 var PRIZES = ["谢谢参与","再来一次","红包","谢谢参与","对象","特等奖"];
@@ -546,7 +542,8 @@ var FX = {
   cake:  {cls:"spark", n:8, d:[.85,1.15], lo:9,  hi:26},
   flower:{cls:"petal", n:9, d:[1.15,1.55],lo:10, hi:28},
   packet:{cls:"coin",  n:9, d:[.95,1.3],  lo:11, hi:28},
-  hug:   {cls:"heart", n:7, d:[1.15,1.5], lo:9,  hi:24}
+  hug:   {cls:"heart", n:7, d:[1.15,1.5], lo:9,  hi:24},
+  scratch:{cls:"coin", n:10, d:[.95,1.3], lo:10, hi:27}
 };
 function playFx(el){
   var box = el.querySelector(".fx");
@@ -565,7 +562,7 @@ function playFx(el){
   }
   setTimeout(function(){ box.innerHTML = ""; }, 2400);
 }
-var gotCount = 0, NEED = 4;
+var gotCount = 0, NEED = 5;
 function petals(){
   var b = document.getElementById("burst");
   if(!b) return;
@@ -580,12 +577,23 @@ function petals(){
   setTimeout(function(){ b.innerHTML = ""; }, 5400);
 }
 function finaleCheck(){
-  if(gotCount < NEED) return;
-  var f = document.getElementById("finale");
-  if(!f || f.className.indexOf("show") >= 0) return;
-  f.classList.add("show");
+  var ht = document.querySelector("#s2 .htip");
+  if(gotCount < NEED){
+    if(ht) ht.textContent = "还有 " + (NEED - gotCount) + " 样，都点开看看";
+    return;
+  }
+  var lt = document.querySelector("#s2 .letter");
+  if(!lt || lt.className.indexOf("show") >= 0) return;
+  if(ht) ht.textContent = "五样都给你了";
+  lt.classList.add("show");
+  document.getElementById("done").classList.add("show");
   winSound();
   try{ petals(); }catch(e){}
+  setTimeout(function(){
+    var box = document.getElementById("s2");
+    try{ box.scrollTo({top: lt.offsetTop - 46, behavior:"smooth"}); }
+    catch(e){ box.scrollTop = lt.offsetTop - 46; }
+  }, 950);
 }
 Array.prototype.forEach.call(document.querySelectorAll("#s2 .it.tap"), function(el){
   el.addEventListener("click", function(){
